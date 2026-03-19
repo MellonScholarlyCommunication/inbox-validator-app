@@ -15,34 +15,28 @@ export interface Member {
 }
 
 export async function listInbox(url: string)  : Promise<Member[]> {
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'Accept': 'application/ld+json, text/turtle;q=0.9'
-            }
-        });
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/ld+json, text/turtle;q=0.9'
+        }
+    });
 
-        if (! response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
-
-        const contentType = response.headers.get('content-type') ?? 'application/ld+json';
-
-        if (contentType.includes('application/ld+json')) {
-            const text = await response.text();
-            return await parseInbox(text,'application/ld+json');
-        }
-        else if (contentType.includes('text/turtle')) {
-            const text = await response.text();
-            return await parseInbox(text,'text/turtle');
-        }
-        else {
-            throw new Error(`can not parse: ${contentType}`);
-        }
+    if (! response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
     }
-    catch (error) {
-        console.error(`fetch failed:`, error);
-        return [];
+
+    const contentType = response.headers.get('content-type') ?? 'application/ld+json';
+
+    if (contentType.includes('application/ld+json')) {
+        const text = await response.text();
+        return await parseInbox(text,'application/ld+json');
+    }
+    else if (contentType.includes('text/turtle')) {
+        const text = await response.text();
+        return await parseInbox(text,'text/turtle');
+    }
+    else {
+        throw new Error(`can not parse: ${contentType}`);
     }
 }
 

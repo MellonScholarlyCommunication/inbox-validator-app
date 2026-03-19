@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { listInbox , type Member } from "../inbox";
 
 	//let inbox = "http://localhost:3001/inbox/";
 	let inbox = "https://patrickhochstenbach.net/";
 
-	let inboxContents : Member[];
-
-	onMount( async () => {
-        inboxContents = await listInbox(inbox);
-    });
 </script>
 
+{#await listInbox(inbox)}
+  <p>Loading {inbox}...</p>
+{:then notifications} 
 <h3>{inbox}</h3>
 <table class="table table-hover table-sm mb-0">
   <thead class="text-muted small text-uppercase">
@@ -23,9 +20,9 @@
     </tr>
   </thead>
 
-  {#if inboxContents}
+  {#if notifications}
   <tbody>
-    {#each inboxContents as member}
+    {#each notifications as member}
       <tr>
         <td>
           <span class="member-icon icon-txt">
@@ -52,6 +49,9 @@
   </tbody>
   {/if}
 </table>
+{:catch error}
+  <p>Failed to load {inbox}</p>
+{/await}
 
 <style>
 .type-width {
