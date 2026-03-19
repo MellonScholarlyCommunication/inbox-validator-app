@@ -7,6 +7,10 @@ const POSIX = 'http://www.w3.org/ns/posix/stat#';
 const IANA = 'http://www.w3.org/ns/iana/media-types/';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
+export interface Notification {
+    data: string
+}
+
 export interface Member {
     name: string;
     mimeType?: string; 
@@ -14,7 +18,21 @@ export interface Member {
     date?: string;
 }
 
-export async function listInbox(url: string)  : Promise<Member[]> {
+export async function getNotification(url: string) : Promise<Notification> {
+    const response = await fetch(url);
+
+    if (! response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const text = await response.text();
+
+    return {
+        data: text
+    } as Notification;
+}
+
+export async function listInbox(url: string) : Promise<Member[]> {
     const response = await fetch(url, {
         headers: {
             'Accept': 'application/ld+json, text/turtle;q=0.9'

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import 'bootstrap/dist/css/bootstrap.min.css';
-  import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+  //import 'bootstrap/dist/css/bootstrap.min.css';
+  //import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 	import { listInbox , type Member } from "../inbox";
 
 	//let inbox = "http://localhost:3001/inbox/";
