@@ -27,17 +27,25 @@ export async function listInbox(url: string)  : Promise<Member[]> {
 
     const contentType = response.headers.get('content-type') ?? 'application/ld+json';
 
+    let inbox : Member[];
+
     if (contentType.includes('application/ld+json')) {
         const text = await response.text();
-        return await parseInbox(text,'application/ld+json');
+        inbox = await parseInbox(text,'application/ld+json');
     }
     else if (contentType.includes('text/turtle')) {
         const text = await response.text();
-        return await parseInbox(text,'text/turtle');
+        inbox = await parseInbox(text,'text/turtle');
     }
     else {
         throw new Error(`can not parse: ${contentType}`);
     }
+
+    // Clean the members and remove the base url
+    return inbox.map(member => ({
+        ...member,
+        name: member.name.replace(url,"")
+    }));
 }
 
 async function parseInbox(data: string, type: string) : Promise<Member[]> {

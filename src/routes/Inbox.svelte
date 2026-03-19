@@ -1,9 +1,10 @@
 <script lang="ts">
+  import 'bootstrap/dist/css/bootstrap.min.css';
+  import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 	import { listInbox , type Member } from "../inbox";
 
 	//let inbox = "http://localhost:3001/inbox/";
 	let inbox = "https://patrickhochstenbach.net/";
-
 </script>
 
 {#await listInbox(inbox)}
@@ -50,7 +51,7 @@
   {/if}
 </table>
 {:catch error}
-  <p>Failed to load {inbox}</p>
+  <p class="error">Failed to load {inbox}</p>
 {/await}
 
 <style>
@@ -59,5 +60,13 @@
 }
 .table {
     margin-top: 30px;
+}
+.error {
+    color: #dc3545;          /* Bootstrap's danger red */
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
 }
 </style>
