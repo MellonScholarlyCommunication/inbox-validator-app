@@ -1,6 +1,7 @@
 import { Readable } from 'readable-stream';
 import { rdfParser } from "rdf-parse";
 import type { Quad } from "@rdfjs/types";
+import N3 from 'n3';
 
 const LDP = 'http://www.w3.org/ns/ldp#';
 const POSIX = 'http://www.w3.org/ns/posix/stat#';
@@ -67,48 +68,80 @@ export async function listInbox(url: string) : Promise<Member[]> {
 }
 
 async function parseInbox(data: string, type: string) : Promise<Member[]> {
-    const quads = await parseRDF(data, type);
-    const result : Member[] = [];
+    try {
+        const store = await parseRDF(data, type);
+        const result : Member[] = [];
 
-    for (let i = 0 ; i < quads.length ; i++) {
-        if (quads[i].predicate.value === `${LDP}contains`) {
-            result.push( {
-                name: quads[i].object.value
-            });
+        const engine = new window.Comunica.QueryEngine();
+        const bindingsStream = await engine.queryBindings(
+            `
+            PREFIX ldp: <${LDP}>
+            PREFIX posix: <${POSIX}>
+
+            SELECT ?name ?mtime ?size ?type WHERE {
+                ?s ldp:contains ?name .
+                OPTIONAL {
+                    ?name a ?type .
+                    FILTER(STRSTARTS(STR(?type), "${IANA}"))
+                }
+                OPTIONAL {
+                    ?name posix:mtime ?mtime .
+                }
+                OPTIONAL {
+                    ?name posix:size ?size .
+                }
+            }
+            `,
+            {
+            sources: [store]
+            }
+        );
+
+        const bindings = await bindingsStream.toArray();
+        
+        if (bindings) {
+            for (let i = 0 ; i < bindings.length ; i++) {
+                const member : Member = { "name": ""};
+                if (bindings[i]?.get('name')) {
+                    member.name = bindings[i]?.get('name').value;
+                }
+                if (bindings[i]?.get('mtime')) {
+                    member.date = new Date(Number(bindings[i]?.get('mtime').value)*1000).toISOString();
+                }
+                if (bindings[i]?.get('size')) {
+                    member.size = bindings[i]?.get('size').value;
+                }
+                if (bindings[i]?.get('type')) {
+                    member.mimeType = bindings[i]?.get('type').value
+                                        .replace(IANA,"")
+                                        .replaceAll(/#.*/g,'');
+                }
+                result.push(member);
+            }
+        }   
+
+        return result;
+    }
+    catch (e: unknown) {
+        console.log(e);
+        if (e instanceof Error) {
+            throw new Error(e.message);
+        }
+        else {
+            throw new Error(`Unknown parsing error: ${e}`);
         }
     }
-
-    for (let i = 0 ; i < quads.length ; i++) {
-        const r  = result.find( res => res.name == quads[i].subject.value);
-
-        if (r) {
-            if (quads[i].predicate.value === `${POSIX}mtime`) {
-                r.date = new Date(Number(quads[i].object.value) * 1000).toISOString();
-            }
-            if (quads[i].predicate.value === `${POSIX}size`) {
-                r.size = Number(quads[i].object.value);
-            }
-            if (quads[i].predicate.value === `${RDF}type` &&
-                quads[i].object.value.startsWith(IANA)
-            ) {
-                r.mimeType = quads[i].object.value
-                                .replace(IANA,"")
-                                .replaceAll(/#.*/g,'');
-            }
-        }
-    }
-    return result;
 }
 
-async function parseRDF(data: string, type: string) : Promise<Quad[]> {
-    return new Promise<Quad[]>( (resolve,reject) => {
+async function parseRDF(data: string, type: string) : Promise<N3.Store> {
+    return new Promise<N3.Store>( (resolve,reject) => {
         const textStream = streamifyString(data);
-        const quads : Quad[] = [];
-
+        const store = new N3.Store();
+        
         rdfParser.parse(textStream, { contentType: type })
-            .on('data', (quad) => quads.push(quad))
+            .on('data', (quad) => store.add(quad))
             .on('error', (error) => reject(error))
-            .on('end', () => resolve(quads));
+            .on('end', () => resolve(store));
     });
 }
 

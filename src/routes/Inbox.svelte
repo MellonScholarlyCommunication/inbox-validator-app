@@ -38,7 +38,7 @@
               OTHER
               {/if}
             {:else}
-              OTHER
+              --
             {/if}
           </span>
         </td>
