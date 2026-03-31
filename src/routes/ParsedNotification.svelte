@@ -49,7 +49,7 @@
                 case 'https://www.w3.org/ns/activitystreams#Announce':
                     return "&#128227;";
                 case 'https://www.w3.org/ns/activitystreams#Flag':
-                    return "&#9194;";
+                    return "&#128681;";
                 case 'https://www.w3.org/ns/activitystreams#Offer':
                     return "&#127873;";
                 case 'https://www.w3.org/ns/activitystreams#Reject':
@@ -79,33 +79,41 @@
         <dd><Agent actor={object.target}/></dd>
     {/if}
     </dl>
-    {#if object.type}
+    {#if object.type && object.type.length > 0}
         <h4>{@html requestIcon(object.type)} {requestType(object.type)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
     {:else}
         <h4>Body</h4>
     {/if}
-    <dl>
+    <dl class="parsed-body">
         <dt></dt>
-        <dd class="parsed-body" class:parsed-more={object.object?.kind === 'generic'}>
+        <dd class:parsed-more={object.object?.kind === 'generic'}>
             {#if object.object?.kind === 'relationship' }
                 <Relationship object={object.object}/>
             {:else if object.object?.kind === 'page'}
                 <Page object={object.object}/>
             {:else if object.object?.kind === 'generic'}
                 <ParsedNotification object={object.object}/>
+            {:else if object.id}
+                <i>Unprocessable</i>
             {/if}
         </dd>
+        {#if object.summary}
+            <dt>Summary</dt>
+            <dd>
+                {object.summary}
+            </dd>
+        {/if}
         {#if object.inReplyTo} 
-        <dt>In-Reply-To</dt>
-        <dd>
-            {object.inReplyTo}
-        </dd>
+            <dt>In-Reply-To</dt>
+            <dd>
+                {object.inReplyTo}
+            </dd>
         {/if}
         {#if object.context} 
-        <dt>Context</dt>
-        <dd>
-            {object.context.id}
-        </dd>
+            <dt>Context</dt>
+            <dd>
+                <a href={object.context.id}>{object.context.id}</a>
+            </dd>
         {/if}
     </dl>
 {/if}
@@ -115,9 +123,35 @@
     background-color: #EEEEEE;
     padding: 4px;
   }
-  .parsed-body {
-    padding: 4px;
+
+  .parsed-head dt {
+    display: inline-block;
+    width: 10%; /* Or a fixed px width */
+    font-weight: bold;
+    vertical-align: top;
   }
+
+  .parsed-head dd {
+    display: inline-block;
+    width: 85%; /* Ensure total width is < 100% to account for whitespace */
+    margin: 0;
+    vertical-align: top;
+  }
+
+  .parsed-body dt {
+    display: inline-block;
+    width: 10%; /* Or a fixed px width */
+    font-weight: bold;
+    vertical-align: top;
+  }
+
+  .parsed-body dd {
+    display: inline-block;
+    width: 85%; /* Ensure total width is < 100% to account for whitespace */
+    margin: 0;
+    vertical-align: top;
+  }
+
   .parsed-more {
    border-left: 6px solid #ccc;
    padding-left: 10px;
