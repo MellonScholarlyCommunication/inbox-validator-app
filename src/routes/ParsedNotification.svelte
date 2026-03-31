@@ -40,6 +40,32 @@
         }
         return "Unknown";
     }
+
+    function requestIcon(types: string[]) {
+        for (let i = 0 ; i < types.length ; i++) {
+            switch (types[i]) {
+                case 'https://www.w3.org/ns/activitystreams#Accept':
+                    return "&#9989;";
+                case 'https://www.w3.org/ns/activitystreams#Announce':
+                    return "&#128227;";
+                case 'https://www.w3.org/ns/activitystreams#Flag':
+                    return "&#9194;";
+                case 'https://www.w3.org/ns/activitystreams#Offer':
+                    return "&#127873;";
+                case 'https://www.w3.org/ns/activitystreams#Reject':
+                    return "&#128683;";
+                case 'https://www.w3.org/ns/activitystreams#TentativeAccept':
+                    return "&#9989;";
+                case 'https://www.w3.org/ns/activitystreams#TentativeReject':
+                    return "&#128683;";
+                case 'https://www.w3.org/ns/activitystreams#Undo':
+                    return "&#x238C;";
+                default:
+                    // Do nothing..next type
+            }
+        }
+        return "&#129335;";
+    }
 </script>
 
 {#if object}
@@ -54,7 +80,7 @@
     {/if}
     </dl>
     {#if object.type}
-        <h4>{requestType(object.type)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
+        <h4>{@html requestIcon(object.type)} {requestType(object.type)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
     {:else}
         <h4>Body</h4>
     {/if}
