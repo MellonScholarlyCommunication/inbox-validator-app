@@ -13,12 +13,8 @@
 </script>
 
 {#if actor}
-    <a href={actor.id}>{actor.id}</a>
-    {#if actor.name !== undefined} 
-        ({actor.name}) 
+    [{cleanNS(actor.type)}] {#if actor.name !== undefined} 
+        {actor.name}
     {/if}
-    a {cleanNS(actor.type)}
-    {#if actor.inbox}
-        at {actor.inbox}
-    {/if}
+    (<a href={actor.id}>{actor.id}</a>)
 {/if}

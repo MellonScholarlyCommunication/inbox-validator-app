@@ -1,6 +1,6 @@
 <script lang="ts">
     import { type Notification } from "../inbox";
-    export let notification : Notification;
+    export let data: string;
     
     function highlight(json: string) : string {
         return json
@@ -17,8 +17,8 @@
     }
 </script>
 
-{#if notification}
-    <pre class="json-viewer border rounded p-3 bg-dark">{@html highlight(notification.data)}</pre>
+{#if data}
+    <pre class="json-viewer border rounded p-3 bg-dark">{@html highlight(data)}</pre>
 {/if}
 
 <style>

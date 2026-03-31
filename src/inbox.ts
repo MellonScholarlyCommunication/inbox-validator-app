@@ -300,7 +300,7 @@ async function parseNotificationObject(store: N3.Store, id: string)
                 summary = bindings[i]?.get('summary').value;
             }
             if (bindings[i]?.get('context')) {
-                summary = bindings[i]?.get('context').value;
+                context = bindings[i]?.get('context').value;
             }
             if (bindings[i]?.get('citeAs')) {
                 citeAs = bindings[i]?.get('citeAs').value;

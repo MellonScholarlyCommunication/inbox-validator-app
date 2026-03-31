@@ -111,9 +111,9 @@
       <h6>{inbox}{params.name}</h6>
       <Toggle bind:enabled={viewSource}/>
       {#if viewSource}
-        <RawNotification notification={$appData}/>
+        <RawNotification data={$appData.data}/>
       {:else}
-        <ParsedNotification notification={$appData}/>
+        <ParsedNotification object={$appData.object}/>
       {/if}
       <button class="btn btn-primary" on:click={handleValidate}>Validate</button>
       <button class="btn btn-info" on:click={handleAccept}>Accept</button>
