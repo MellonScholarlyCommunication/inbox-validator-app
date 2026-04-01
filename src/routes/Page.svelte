@@ -39,7 +39,7 @@
 {/if}
 
 <style>
-    .page-item {
-        padding-left: 25px;
-    }
+  .page-item {
+    padding-left: 25px;
+  }
 </style>

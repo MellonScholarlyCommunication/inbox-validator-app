@@ -78,6 +78,24 @@
         <dt>To</dt>
         <dd><Agent actor={object.target}/></dd>
     {/if}
+    {#if object.summary}
+            <dt>Summary</dt>
+            <dd>
+                {object.summary}
+            </dd>
+        {/if}
+        {#if object.inReplyTo} 
+            <dt>In-Reply-To</dt>
+            <dd>
+                {object.inReplyTo}
+            </dd>
+        {/if}
+        {#if object.context} 
+            <dt>Context</dt>
+            <dd>
+                <a href={object.context.id}>{object.context.id}</a>
+            </dd>
+        {/if}
     </dl>
     {#if object.type && object.type.length > 0}
         <h4>{@html requestIcon(object.type)} {requestType(object.type)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
@@ -97,24 +115,6 @@
                 <i>Unprocessable</i>
             {/if}
         </dd>
-        {#if object.summary}
-            <dt>Summary</dt>
-            <dd>
-                {object.summary}
-            </dd>
-        {/if}
-        {#if object.inReplyTo} 
-            <dt>In-Reply-To</dt>
-            <dd>
-                {object.inReplyTo}
-            </dd>
-        {/if}
-        {#if object.context} 
-            <dt>Context</dt>
-            <dd>
-                <a href={object.context.id}>{object.context.id}</a>
-            </dd>
-        {/if}
     </dl>
 {/if}
 
