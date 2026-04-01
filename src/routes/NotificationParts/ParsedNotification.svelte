@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type GenericObject } from "../inbox";
+    import { type GenericObject } from "../../inbox";
     import Agent from "./Agent.svelte";
     import Relationship from "./Relationship.svelte";
     import ParsedNotification from "./ParsedNotification.svelte";

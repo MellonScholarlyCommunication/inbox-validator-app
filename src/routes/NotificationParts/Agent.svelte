@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Agent } from '../inbox';
+    import { type Agent } from "../../inbox";
     export let actor : Agent;
 
     function cleanNS(term: string) {

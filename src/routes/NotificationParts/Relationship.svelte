@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type RelationshipObject } from '../inbox';
+    import { type RelationshipObject } from '../../inbox';
     export let object : RelationshipObject;
 </script>
 

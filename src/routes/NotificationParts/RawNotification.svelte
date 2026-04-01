@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Notification } from "../inbox";
+    import { type Notification } from "../../inbox";
     export let data: string;
     
     function highlight(data: string) : string {

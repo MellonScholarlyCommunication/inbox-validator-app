@@ -9,10 +9,16 @@
     import { createEventDispatcher } from 'svelte';
     import whooshUrl from '../../assets/woosh.mp3';
     import { THIS_ORIGIN } from '../../globals';
-    
+   
+    export let notificationType = 'Accept';
+
     const AS    = 'https://www.w3.org/ns/activitystreams#';
     const dispatch = createEventDispatcher();
 
+    // Check if we allow tentatives...
+    let tentativeFlag = notificationType === 'Accept' ||
+                        notificationType === 'Reject' ? true : false;
+                        
     // Tentative fields
     let isTentative = false;
     let summary = "";
@@ -77,7 +83,7 @@
                 "https://coar-notify.net"
             ],
             'id': genUUID(),
-            'type': 'Accept',
+            'type': notificationType,
             'actor': actor,
             'origin': THIS_ORIGIN,
             'object': notification.object,
@@ -85,7 +91,7 @@
         }
 
         if (isTentative) {
-            payload['type'] = 'TentativeAccept';
+            payload['type'] = 'Tentative' + notificationType;
             payload['summary'] = summary;
         }
 
@@ -118,14 +124,16 @@
   </div>
 {/if}
 
-<h3>Send Accept Notification</h3>
+<h3>Send {notificationType} Notification</h3>
 
+{#if tentativeFlag}
 <div class="mb-3">
-    <input class="form-check-input" type="checkbox" id="tentativeAccept" bind:checked={isTentative}>
-    <label class="form-check-label" for="tentativeAccept">
-        Tentative Accept
+    <input class="form-check-input" type="checkbox" id="tentative" bind:checked={isTentative}>
+    <label class="form-check-label" for="tentative">
+        Tentative {notificationType} 
     </label>
 </div>
+{/if}
 
 <form on:submit|preventDefault={handleSubmit}>
     <h3>To</h3>
@@ -140,6 +148,20 @@
             required
         />
     </div>
+
+    {#if notificationType === 'Announce'}
+        <h3>What</h3>
+        <div class="mb-3">
+            <label for="notifObject" class="form-label">Object</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="notifObject" 
+                placeholder="e.g. An internet resource URL"
+                required
+            />
+        </div>
+    {/if}
 
     <h3>Your Details</h3>
 
@@ -190,7 +212,7 @@
                 type="text" 
                 id="summary" 
                 bind:value={summary}
-                placeholder="Write a short summary why you tentative accept this notification."
+                placeholder="Write a short summary why you tentative {notificationType.toLowerCase()} this notification."
                 required>
         </div> 
     {/if}

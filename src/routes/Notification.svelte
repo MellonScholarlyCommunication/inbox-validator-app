@@ -4,13 +4,13 @@
     import { appData } from '../store';
     import { INBOX_URL } from "../globals";
 	  import { getNotification , type Notification } from "../inbox";
-    import Toggle from "./Toggle.svelte";
-    import ParsedNotification from './ParsedNotification.svelte';
-    import RawNotification from './RawNotification.svelte';
-    import Validate from './Component/Validate.svelte';
-    import Accept from './Component/Accept.svelte';
-    import Reject from './Component/Reject.svelte';
-    import Announce from './Component/Announce.svelte';
+    import Toggle from "./Helper/Toggle.svelte";
+    import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
+    import RawNotification from './NotificationParts/RawNotification.svelte';
+    import Validate from './ResponseButtons/Validate.svelte';
+    import Accept from './ResponseButtons/Accept.svelte';
+    import Reject from './ResponseButtons/Reject.svelte';
+    import Announce from './ResponseButtons/Announce.svelte';
 
     export let params: { name?: string } = {};
 

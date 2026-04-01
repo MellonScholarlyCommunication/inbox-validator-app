@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type PageObject } from '../inbox';
+    import { type PageObject } from '../../inbox';
     export let object : PageObject;
 
     function cleanNS(term: string) {
