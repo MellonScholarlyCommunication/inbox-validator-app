@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>INBOX SERVER</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://rdf.js.org/comunica-browser/versions/v4/engines/query-sparql/comunica-browser.js"></script>
+
+	<link rel="stylesheet" href="css/main.css">
+</head>
+
+<body data-sveltekit-preload-data="hover">
+  <div id="app">
+  <div class="container py-5">
+	<div class="row justify-content-center">
+		<div class="col-lg-10">
+			<div class="card shadow-sm">
+				<div
+					class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+				>
+					<h2 class="h5 mb-0" id="app-title">INBOX SERVER</h2>
+					<small id="app-name">COAR Notify</small>
+				</div>
+
+				<div class="card-body">
+					<h3>Inbox</h3>
+                    <p>
+                        This is a small demonstrator server for an LDN Inbox.
+                        The inbox can be found <a href="inbox/">here</a>.
+                    </p>
+                    <p>
+                        A notification message can be send to ths inbox by using 
+                        the following curl command:
+
+                        <pre>
+curl -X POST -H 'Content-Type: application/ld+json' \
+    --data-binary 'path_to_notification.jsonld' http://localhost:5051/inbox/
+                        </pre>
+                    </p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+  </div>
+</body>
+
+</html>

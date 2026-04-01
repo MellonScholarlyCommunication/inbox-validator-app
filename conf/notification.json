@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "errorMessage": "your document should be an JSON object as in  { \"@context\": ... }",
+  "propertyNames": {
+    "pattern": "^(@context|[a-zA-Z-]+(:[a-zA-Z-]+)?)$",
+    "errorMessage": "property should match a simple name or namespace:name"
+  },
+  "properties": {
+    "@context": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": { 
+          "type": "string",
+          "enum": [
+              "https://www.w3.org/ns/activitystreams",
+              "https://coar-notify.net"
+          ]
+        },
+        "errorMessage": "preferably an array with the activitystreams and coar-notify contexts"
+    },
+    "@graph": {
+      "not": {},
+      "errorMessage": " The '@graph' construct in your JSON-LD is not preferred. Please use a simpler, more compact form"
+    },
+    "@id": { 
+      "not": {},
+      "errorMessage": "the '@id' property is not preferred, use 'id'"
+    },
+    "id": { "type": "string" },
+    "summary": { "type": "string" },
+    "@type": { 
+      "not": {},
+      "errorMessage": "the '@type' property is not preferred, use 'type'"
+    },
+    "type": {
+        "oneOf": [
+            { "type": "string" },
+            { 
+            "type": "array",
+            "items": { "type": "string" }
+            }
+        ]
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "@id": { 
+          "not": {},
+          "errorMessage": "the '@id' property is not preferred, use 'id'"
+        },
+        "id": { "type": "string" },
+        "@type": { 
+          "not": {},
+          "errorMessage": "the '@type' property is not preferred, use 'type'"
+        },
+        "type": { "type": "string" },
+        "name": { "type": "string" } 
+      },
+      "required": [ "id", "type" ],
+      "additionalProperties": true
+    },
+    "origin": {
+      "type": "object",
+      "properties": {
+        "@id": { 
+          "not": {},
+          "errorMessage": "the '@id' property is not preferred, use 'id'"
+        },
+        "id": { "type": "string" },
+        "@type": { 
+          "not": {},
+          "errorMessage": "the '@type' property is not preferred, use 'type'"
+        },
+        "type": { "type": "string" },
+        "name": { "type": "string" } 
+      },
+      "required": [ "id", "type" ],
+      "additionalProperties": true
+    },
+    "object": { "$ref": "#" },
+    "target": {
+      "type": "object",
+      "properties": {
+        "@id": { 
+          "not": {},
+          "errorMessage": "the '@id' property is not preferred, use 'id'"
+        },
+        "id": { "type": "string" },
+        "@type": { 
+          "not": {},
+          "errorMessage": "the '@type' property is not preferred, use 'type'"
+        },
+        "type": { "type": "string" },
+        "name": { "type": "string" } 
+      },
+      "required": [ "id", "type" ],
+      "additionalProperties": true
+    },
+    "inReplyTo": { "type": "string" }
+  },
+  "required": [ "id" ],
+  "additionalProperties": true
+}
