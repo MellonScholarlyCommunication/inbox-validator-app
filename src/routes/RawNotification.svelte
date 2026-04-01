@@ -2,7 +2,8 @@
     import { type Notification } from "../inbox";
     export let data: string;
     
-    function highlight(json: string) : string {
+    function highlight(data: string) : string {
+        const json = JSON.stringify(JSON.parse(data),null,2);
         return json
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(

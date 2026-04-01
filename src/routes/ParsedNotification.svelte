@@ -4,7 +4,7 @@
     import Relationship from "./Relationship.svelte";
     import ParsedNotification from "./ParsedNotification.svelte";
     import Page from "./Page.svelte";
-    export let object: GenericObject;
+    export let object: GenericObject | undefined;
     
     function cleanNS(term: string) {
         if (term) {

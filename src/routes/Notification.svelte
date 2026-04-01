@@ -1,100 +1,39 @@
 <script lang="ts">
+    import type { ComponentType } from 'svelte';
     import { onMount } from 'svelte';
     import { appData } from '../store';
     import { INBOX_URL } from "../globals";
-	import { getNotification , type Notification } from "../inbox";
-    import { validateNotification } from "../validate";
+	  import { getNotification , type Notification } from "../inbox";
     import Toggle from "./Toggle.svelte";
     import ParsedNotification from './ParsedNotification.svelte';
     import RawNotification from './RawNotification.svelte';
+    import Validate from './Component/Validate.svelte';
+    import Accept from './Component/Accept.svelte';
+    import Reject from './Component/Reject.svelte';
+    import Announce from './Component/Announce.svelte';
 
     export let params: { name?: string } = {};
 
+    let showToast = false;
+    let toastMessage = "";
     let viewSource = false;
     let inbox = INBOX_URL;
     let notificationUrl = inbox + params.name;
 
-    // The p-element holds the source for the notification
-    let p : HTMLPreElement;
-
-    // Status defines which sub menus to show for validation and sending responses
-    enum Status {
-        DEFAULT,
-        VALIDATE,
-        ACCEPT,
-        REJECT,
-        ANNOUNCE,
-        PREVIEW
+    interface Tab {
+        label: string;
+        component: ComponentType; 
+        class: string;
     }
 
-    let status: Status = Status.DEFAULT;
+    const tabs : Tab[] = [
+        { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+        { label: 'Accept', component: Accept , class: 'btn btn-info' },
+        { label: 'Reject', component: Reject , class: 'btn btn-warning' },
+        { label: 'Announce', component: Announce , class: 'btn btn-success' }
+    ];
 
-    // Start with validation reports
-    interface Report {
-        data: string;
-        isError: boolean;
-    }
-
-    let validationReport: Report;
-
-    async function handleValidate() {
-        let data = $appData?.data;
-        if (!data) {
-            return;
-        }
-        status = Status.VALIDATE;
-        try {
-            const result = await validateNotification(data);
-            validationReport = {
-                data: result.data,
-                isError: false
-            };
-        }
-        catch (error: unknown) {
-            if (error instanceof Error) {
-                validationReport = {
-                    data: error.message,
-                    isError: true
-                };
-            }
-            else {
-                validationReport = {
-                    data: "Unknown error",
-                    isError: true
-                };
-            }
-        }
-    }
-
-    // Tentative accepts?
-    let isTentative = false;
-
-    // Start accept
-    async function handleAccept() { 
-        isTentative = false;
-        status = Status.ACCEPT;
-    }
-
-    // Start reject
-    async function handleReject() { 
-        isTentative = false;
-        status = Status.REJECT;
-    }
-
-    // Start announce
-    async function handleAnnounce() { 
-        status = Status.ANNOUNCE;
-    }
-
-    // Start preview
-    async function handlePreview() {
-        status = Status.PREVIEW;
-    }
-
-    // Start cancel
-    async function handleCancel() {
-        status = Status.DEFAULT;
-    }
+    let activeTab : Tab | null = null;
 
     onMount(async () => {
         $appData = await getNotification(notificationUrl) as Notification;
@@ -115,69 +54,53 @@
       {:else}
         <ParsedNotification object={$appData.object}/>
       {/if}
-      <button class="btn btn-primary" on:click={handleValidate}>Validate</button>
-      <button class="btn btn-info" on:click={handleAccept}>Accept</button>
-      <button class="btn btn-danger" on:click={handleReject}>Reject</button>
-      <button class="btn btn-success" on:click={handleAnnounce}>Announce</button>
+
+      <div class="tab-container">
+        <nav>
+            {#each tabs as tab}
+                <button 
+                    class={tab.class}
+                    class:active={activeTab === tab} 
+                    on:click={() => activeTab = tab}
+            >
+            {tab.label}
+            </button> 
+            {/each}
+        </nav>
+      </div>
     </div>
     <hr>
 
-    {#if status == Status.VALIDATE && validationReport}
     <div class="card-body">
-        <h3>Validation Report</h3>
-      {#if validationReport.isError }
-        <p class="error">{@html validationReport.data}</p>
-      {:else}
-        <p>{@html validationReport.data}</p>
+      {#if activeTab}
+        <svelte:component 
+          this={activeTab.component} 
+          on:changeTab={ (e) => { 
+              activeTab = null;
+              showToast = true;
+              toastMessage = e.detail;
+              setTimeout(() => { showToast = false;}, 3000);
+          }}
+          />
       {/if}
     </div>
-    {:else if status == Status.ACCEPT}
-    <div class="card-body">
-        <h3>Accept Notification</h3>
-        <div class="mb-3">
-            <input class="form-check-input" type="checkbox" id="tentativeAccept" bind:checked={isTentative}>
-            <label class="form-check-label" for="tentativeAccept">
-                Tentative Accept
-            </label>
+{/if}
+
+{#if showToast}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast show align-items-center text-white bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body">
+          {toastMessage}
         </div>
-        {#if isTentative}
-        <div class="mb-3">
-            <label class="form-label" for="summary"><b>Summary</b></label>
-            <input class="form-control" type="text" id="summary" placeholder="Write a short summary why you tentative accept this notification.">
-        </div> 
-        {/if}
-        <button class="btn btn-success" on:click={handlePreview}>Preview</button>
-        <button class="btn btn-light" on:click={handleCancel}>Cancel</button>
+        <button 
+          type="button" 
+          class="btn-close btn-close-white me-2 m-auto" 
+          on:click={() => showToast = false}>
+        </button>
+      </div>
     </div>
-    {:else if status == Status.REJECT}
-    <div class="card-body">
-        <h3>Reject Notification</h3>
-        <div class="mb-3">
-            <input class="form-check-input" type="checkbox" id="tentativeReject" bind:checked={isTentative}>
-            <label class="form-check-label" for="tentativeReject">
-                Tentative Reject
-            </label>
-        </div>
-        {#if isTentative}
-        <div class="mb-3">
-            <label class="form-label" for="summary"><b>Summary</b></label>
-            <input class="form-control" type="text" id="summary" placeholder="Write a short summary why you tentative reject this notification.">
-        </div> 
-        {/if}
-        <button class="btn btn-success" on:click={handlePreview}>Preview</button>
-        <button class="btn btn-light" on:click={handleCancel}>Cancel</button>
-    </div>
-    {:else if status == Status.ANNOUNCE}
-    <div class="card-body">
-        <h3>Announce Service Result</h3>
-        <button class="btn btn-success" on:click={handlePreview}>Preview</button>
-        <button class="btn btn-light" on:click={handleCancel}>Cancel</button>
-    </div>
-    {:else if status == Status.PREVIEW}
-    <div class="card-body">
-        <h3>Preview Notification</h3>
-    </div>
-    {/if}
+  </div>
 {/if}
 
 <style>
@@ -189,4 +112,11 @@
     padding: 0.75rem 1rem;
     margin-top: 1rem;
   }
+
+  nav {
+    display: flex;       /* Lined up in a row */
+    gap: 12px;           /* The magic spacing property */
+    margin-bottom: 5px;  /* Space between buttons and the content div */
+  }
+
 </style>

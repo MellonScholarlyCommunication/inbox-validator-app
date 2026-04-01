@@ -66,6 +66,32 @@ export interface Member {
     date?: string;
 }
 
+export function genUUID() {
+    return `urn:uuid:` + crypto.randomUUID();
+}
+
+export async function sendNotification(inboxUrl: string, payload: any) {
+    try {
+        const response = await fetch(inboxUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/ld+json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.log(response.status);
+            throw new Error("Failed");
+        }
+
+        return response;
+    }
+    catch (e) {
+        throw new Error(`Failed to send notification to ${inboxUrl}`);        
+    }
+}
+
 export async function getNotification(url: string) : Promise<Notification> {
     const response = await fetch(url);
 
@@ -130,8 +156,6 @@ async function parseNotification(data: string, type: string) : Promise<Notificat
         console.log(e);
         notification.parseError = true;   
     }
-
-    console.log(notification);
 
     return notification;
 }
@@ -476,7 +500,6 @@ async function parseInbox(data: string, type: string) : Promise<Member[]> {
         return result;
     }
     catch (e: unknown) {
-        console.log(e);
         if (e instanceof Error) {
             throw new Error(e.message);
         }
