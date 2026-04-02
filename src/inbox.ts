@@ -1,6 +1,7 @@
 import { Readable } from 'readable-stream';
 import { rdfParser } from "rdf-parse";
 import type { Quad } from "@rdfjs/types";
+import { LD_CACHE } from './globals';
 import N3 from 'n3';
 
 const AS    = 'https://www.w3.org/ns/activitystreams#';
@@ -556,8 +557,13 @@ async function parseRDF(data: string, type: string) : Promise<N3.Store> {
     return new Promise<N3.Store>( (resolve,reject) => {
         const textStream = streamifyString(data);
         const store = new N3.Store();
-        
-        rdfParser.parse(textStream, { contentType: type })
+       
+        const options = {
+            contentType: type,
+            '@comunica/actor-rdf-parse-jsonld:documentLoader': customDocumentLoader()
+        };
+
+        rdfParser.parse(textStream, options)
             .on('data', (quad) => store.add(quad))
             .on('error', (error) => reject(error))
             .on('end', () => resolve(store));
@@ -572,4 +578,21 @@ function streamifyString(data:string) {
         }
     });
     return stream;
+}
+
+function customDocumentLoader() {
+    console.log('Loading custom document loader');
+    return {
+        load: async (url: string) => {
+            console.log(`requesting: ${url}`);
+            if (LD_CACHE[url]) {
+                console.log(`loading ${url} from cache`);
+                return LD_CACHE[url];
+            }
+            else {
+                console.log(`no ${url} in cache `);
+                return { '@context': {} };
+            }
+        }
+    };
 }

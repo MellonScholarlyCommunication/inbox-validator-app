@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ComponentType } from 'svelte';
     import { onMount } from 'svelte';
-    import { appData } from '../store';
+    import { notificationData } from '../store';
     import { INBOX_URL } from "../globals";
 	  import { getNotification , type Notification } from "../inbox";
     import Toggle from "./Helper/Toggle.svelte";
@@ -36,7 +36,7 @@
     let activeTab : Tab | null = null;
 
     onMount(async () => {
-        $appData = await getNotification(notificationUrl) as Notification;
+        $notificationData = await getNotification(notificationUrl) as Notification;
     });
 </script>
 
@@ -44,15 +44,15 @@
     <a href="/" class="btn btn-light text-decoration-none">INBOX</a>
 </nav>
 
-{#if $appData} 
+{#if $notificationData} 
     <div class="card-body">
-      <h3>Notification {$appData.object?.id}</h3>
+      <h3>Notification {$notificationData.object?.id}</h3>
       <h6>{inbox}{params.name}</h6>
       <Toggle bind:enabled={viewSource}/>
       {#if viewSource}
-        <RawNotification data={$appData.data}/>
+        <RawNotification data={$notificationData.data}/>
       {:else}
-        <ParsedNotification object={$appData.object}/>
+        <ParsedNotification object={$notificationData.object}/>
       {/if}
 
       <div class="tab-container">

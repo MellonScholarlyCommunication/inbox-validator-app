@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { appData } from '../../store';
+    import { notificationData } from '../../store';
     import { get } from 'svelte/store'; // Import store getter
     import { 
         type Notification, 
@@ -24,7 +24,7 @@
     let summary = "";
 
     // Read in the notification
-    let notification : Notification = get(appData) as Notification;
+    let notification : Notification = get(notificationData) as Notification;
 
     // Find out the right actor...
     const actorInit : Agent = notification.object?.target ?

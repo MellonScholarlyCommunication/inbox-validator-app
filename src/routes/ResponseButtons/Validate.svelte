@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { appData } from '../../store';
+    import { notificationData } from '../../store';
     import { validateNotification } from "../../validate";
     import { type Notification } from '../../inbox';
 
@@ -10,7 +10,7 @@
 
     let validationReport: Report;
 
-    appData.subscribe( (data) => {
+    notificationData.subscribe( (data) => {
         handleValidate(data) 
     });
 
