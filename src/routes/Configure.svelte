@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { link, push } from 'svelte-spa-router';
+    import { link } from 'svelte-spa-router';
     import { defaultActor, defaultOrigin } from '../store';
 
     const AS = 'https://www.w3.org/ns/activitystreams#';
@@ -23,7 +23,7 @@
 <h3>Configuration</h3>
 
 <nav class="navbar">
-    <a href="/" use:link class="btn btn-light text-decoration-none">INBOX</a>
+    <a href="/" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>
 </nav>
 
 <p>
@@ -33,6 +33,7 @@
 {#if $defaultActor && $defaultOrigin}
 <form on:submit|preventDefault={handleSubmit}>
     <h5>Your Actor Identity</h5>
+    <div id="actorConfig">
     <div class="mb-3">
         <label for="actorId" class="form-label">Id</label>
         <input 
@@ -71,8 +72,10 @@
         {/each}
         </select>
     </div>
+    </div>
 
     <h5>Your Origin Identity</h5>
+    <div id="originConfig">
     <div class="mb-3">
         <label for="originId" class="form-label">Id</label>
         <input 
@@ -111,9 +114,25 @@
         {/each}
         </select>
     </div>
+    </div>
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <button type="submit" class="btn btn-primary">Save</button>
     </div>
 </form>
 {/if}
+
+<style>
+    #actorConfig {
+        padding: 16px;
+        border: 1px solid #cccccc;
+        border-radius: 15px;
+        margin-bottom: 10px;
+    }
+    #originConfig {
+        padding: 16px;
+        border: 1px solid #cccccc;
+        border-radius: 15px;
+        margin-bottom: 10px;        
+    }
+</style>

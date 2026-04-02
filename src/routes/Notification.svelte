@@ -1,47 +1,48 @@
 <script lang="ts">
-    import type { ComponentType } from 'svelte';
-    import { onMount } from 'svelte';
-    import { notificationData } from '../store';
-    import { INBOX_URL } from "../globals";
-	  import { getNotification , type Notification } from "../inbox";
-    import Toggle from "./Helper/Toggle.svelte";
-    import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
-    import RawNotification from './NotificationParts/RawNotification.svelte';
-    import Validate from './ResponseButtons/Validate.svelte';
-    import Accept from './ResponseButtons/Accept.svelte';
-    import Reject from './ResponseButtons/Reject.svelte';
-    import Announce from './ResponseButtons/Announce.svelte';
+  import { link } from 'svelte-spa-router';
+  import type { ComponentType } from 'svelte';
+  import { onMount } from 'svelte';
+  import { notificationData } from '../store';
+  import { INBOX_URL } from "../globals";
+  import { getNotification , type Notification } from "../inbox";
+  import Toggle from "./Helper/Toggle.svelte";
+  import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
+  import RawNotification from './NotificationParts/RawNotification.svelte';
+  import Validate from './ResponseButtons/Validate.svelte';
+  import Accept from './ResponseButtons/Accept.svelte';
+  import Reject from './ResponseButtons/Reject.svelte';
+  import Announce from './ResponseButtons/Announce.svelte';
 
-    export let params: { name?: string } = {};
+  export let params: { name?: string } = {};
 
-    let showToast = false;
-    let toastMessage = "";
-    let viewSource = false;
-    let inbox = INBOX_URL;
-    let notificationUrl = inbox + params.name;
+  let showToast = false;
+  let toastMessage = "";
+  let viewSource = false;
+  let inbox = INBOX_URL;
+  let notificationUrl = inbox + params.name;
 
-    interface Tab {
-        label: string;
-        component: ComponentType; 
-        class: string;
-    }
+  interface Tab {
+      label: string;
+      component: ComponentType; 
+      class: string;
+  }
 
-    const tabs : Tab[] = [
-        { label: 'Validate', component: Validate , class: 'btn btn-primary' },
-        { label: 'Accept', component: Accept , class: 'btn btn-info' },
-        { label: 'Reject', component: Reject , class: 'btn btn-warning' },
-        { label: 'Announce', component: Announce , class: 'btn btn-success' }
-    ];
+  const tabs : Tab[] = [
+      { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+      { label: 'Accept', component: Accept , class: 'btn btn-info' },
+      { label: 'Reject', component: Reject , class: 'btn btn-warning' },
+      { label: 'Announce', component: Announce , class: 'btn btn-success' }
+  ];
 
-    let activeTab : Tab | null = null;
+  let activeTab : Tab | null = null;
 
-    onMount(async () => {
-        $notificationData = await getNotification(notificationUrl) as Notification;
-    });
+  onMount(async () => {
+      $notificationData = await getNotification(notificationUrl) as Notification;
+  });
 </script>
 
 <nav class="navbar">
-    <a href="/" class="btn btn-light text-decoration-none">INBOX</a>
+    <a href="/" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>
 </nav>
 
 {#if $notificationData} 
