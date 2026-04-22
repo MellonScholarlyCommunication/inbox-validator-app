@@ -23,7 +23,7 @@ Start an inbox server:
 npm run inbox
 ```
 
-Visit: http://localhost:5051/
+Optionally, start a separate shell and start a validation service (see, https://github.com/MellonScholarlyCommunication/shacl-validator).
 
 Start a separate shell the Vite server for the front-end:
 
