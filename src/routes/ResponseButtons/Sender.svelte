@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { notificationData } from '../../store';
+    import { notificationData, defaultActor, defaultOrigin } from '../../store';
     import { get } from 'svelte/store'; // Import store getter
     import { 
         type Notification, 
@@ -8,7 +8,7 @@
         sendNotification } from '../../inbox';
     import { createEventDispatcher } from 'svelte';
     import whooshUrl from '../../assets/woosh.mp3';
-    import { THIS_ORIGIN } from '../../globals';
+
    
     export let notificationType = 'Accept';
 
@@ -26,21 +26,11 @@
     // Read in the notification
     let notification : Notification = get(notificationData) as Notification;
 
-    // Find out the right actor...
-    const actorInit : Agent = notification.object?.target ?
-        notification.object?.target : {
-            id: genUUID(),
-            type: "https://www.w3.org/ns/activitystreams#Person",
-            name: undefined,
-            inbox: undefined
-        };
-
     // Find out the right inbox to send notifications to...
     const inboxInit : string | undefined = notification.object?.origin?.inbox ?
             notification.object?.origin?.inbox :
             notification.object?.actor?.inbox;
 
-    let actor: Agent = { ...actorInit };
     let inbox: string | undefined = inboxInit;
 
     // Possible actor types (limited for now)...
@@ -56,7 +46,6 @@
     ];
 
     function handleReset() {
-        actor = {...actorInit };
         inbox = inboxInit;
     }
 
@@ -84,8 +73,8 @@
             ],
             'id': genUUID(),
             'type': notificationType,
-            'actor': actor,
-            'origin': THIS_ORIGIN,
+            'actor': $defaultActor,
+            'origin': $defaultOrigin,
             'object': notification.object,
             'target': notification.object?.actor
         }
@@ -162,47 +151,6 @@
             />
         </div>
     {/if}
-
-    <h3>Your Details</h3>
-
-    <div class="mb-3">
-        <label for="notifId" class="form-label">Id</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="notifId" 
-            placeholder="e.g. A unique id for your organization"
-            bind:value={actor.id} 
-            required
-        />
-    </div>
-
-    <div class="mb-3">
-        <label for="notifName" class="form-label">Name</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="notifName"
-            placeholder="e.g. Name of your organization"
-            bind:value={actor.name} 
-        />
-    </div>
-
-    <div class="mb-3">
-    <label for="typeSelect" class="form-label">Type</label>
-    <select 
-        id="typeSelect" 
-        class="form-select" 
-        bind:value={actor.type}
-    >
-        <option disabled value="">Choose a type...</option>
-        {#each categories as category}
-            <option value={category.iri}>
-                {category.label}
-            </option>
-        {/each}
-        </select>
-    </div>
 
     {#if isTentative}
         <div class="mb-3">

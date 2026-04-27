@@ -47,17 +47,6 @@
     </div>
 
     <div class="mb-3">
-        <label for="actorName" class="form-label">Name</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="actorName"
-            placeholder="e.g. Name of your organization"
-            bind:value={$defaultActor.name} 
-        />
-    </div>
-
-    <div class="mb-3">
     <label for="actorType" class="form-label">Type</label>
     <select 
         id="actorType" 
@@ -72,6 +61,29 @@
         {/each}
         </select>
     </div>
+
+    <div class="mb-3">
+        <label for="actorName" class="form-label">Name</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="actorName"
+            placeholder="e.g. Name of your organization"
+            bind:value={$defaultActor.name} 
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="actorInbox" class="form-label">Inbox</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="actorName"
+            placeholder="e.g. Location of your inbox"
+            bind:value={$defaultActor.inbox} 
+        />
+    </div>
+    
     </div>
 
     <h5>Your Origin Identity</h5>
@@ -85,17 +97,6 @@
             placeholder="e.g. A unique id for your organization"
             bind:value={$defaultOrigin.id} 
             required
-        />
-    </div>
-
-    <div class="mb-3">
-        <label for="originName" class="form-label">Name</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="originName"
-            placeholder="e.g. Name of your organization"
-            bind:value={$defaultOrigin.name} 
         />
     </div>
 
@@ -114,6 +115,29 @@
         {/each}
         </select>
     </div>
+
+    <div class="mb-3">
+        <label for="originName" class="form-label">Name</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="originName"
+            placeholder="e.g. Name of your organization"
+            bind:value={$defaultOrigin.name} 
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="originInbox" class="form-label">Inbox</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="originInbox"
+            placeholder="e.g. Location of your inbox"
+            bind:value={$defaultOrigin.inbox} 
+        />
+    </div>
+
     </div>
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -134,5 +158,9 @@
         border: 1px solid #cccccc;
         border-radius: 15px;
         margin-bottom: 10px;        
+    }
+
+    label {
+        font-weight: bold;
     }
 </style>

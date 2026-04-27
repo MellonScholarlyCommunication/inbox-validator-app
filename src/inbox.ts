@@ -72,6 +72,7 @@ export function genUUID() {
 }
 
 export async function sendNotification(inboxUrl: string, payload: any) {
+    console.log(`Sending to ${inboxUrl}:`, payload);
     try {
         const response = await fetch(inboxUrl, {
             method: 'POST',
@@ -89,6 +90,7 @@ export async function sendNotification(inboxUrl: string, payload: any) {
         return response;
     }
     catch (e) {
+        console.error(`failed to contact ${inboxUrl}`, e);
         throw new Error(`Failed to send notification to ${inboxUrl}`);        
     }
 }

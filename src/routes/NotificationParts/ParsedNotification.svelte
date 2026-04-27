@@ -85,7 +85,7 @@
             </dd>
         {/if}
         {#if object.inReplyTo} 
-            <dt>In-Reply-To</dt>
+            <dt>InReplyTo</dt>
             <dd>
                 {object.inReplyTo}
             </dd>
