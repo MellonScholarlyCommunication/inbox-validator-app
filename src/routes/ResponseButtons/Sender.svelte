@@ -2,7 +2,8 @@
     import { notificationData, defaultActor, defaultOrigin } from '../../store';
     import { get } from 'svelte/store'; // Import store getter
     import { 
-        type Notification, 
+        type Notification,
+        type PageObject, 
         genUUID,
         sendNotification } from '../../inbox';
     import { createEventDispatcher } from 'svelte';
@@ -12,6 +13,7 @@
 
     const AS = 'https://www.w3.org/ns/activitystreams#';
     const COAR_NOTIFY = 'http://coar-notify.net/specification/vocabulary/';
+    const SORG = 'http://schema.org/';
 
     const dispatch = createEventDispatcher();
 
@@ -39,13 +41,16 @@
     }
 
     // Possible announce types
-    let addedNotificationType: string;
+    let addedNotificationType: string = '';
 
     if (notification.object?.type?.includes(`${COAR_NOTIFY}ReviewAction`)) {
         addedNotificationType = 'coar-notify:ReviewAction';
     }
     else if (notification.object?.type?.includes(`${COAR_NOTIFY}EndorsementAction`)) {
         addedNotificationType = 'coar-notify:EndorsementAction';
+    }
+    else {
+        addedNotificationType = '';
     }
 
     const announceTypes : Category[] = [
@@ -56,40 +61,46 @@
     ];
 
     // Possible AS object type
-    let asObjectType: string = "as:Page";
+    let asObjectType: string = "Page";
 
-    const asObjecTypes : Category[] = [
-        { iri: 'as:Activity', label: 'Activity' },
-        { iri: 'as:Application', label: 'Application' },
-        { iri: 'as:Article', label: 'Article' },
-        { iri: 'as:Audio', label: 'Audio' },
-        { iri: 'as:Collection', label: 'Collection' },
-        { iri: 'as:CollectionPage', label: 'CollectionPage' },
-        { iri: 'as:Relationship', label: 'Relationship' },
-        { iri: 'as:Document', label: 'Document' },
-        { iri: 'as:Event', label: 'Event' },
-        { iri: 'as:Group', label: 'Group' },
-        { iri: 'as:Image', label: 'Image' },
-        { iri: 'as:IntransitiveActivity', label: 'IntransitiveActivity' },
-        { iri: 'as:Note', label: 'Note' },
-        { iri: 'as:Object', label: 'Object' },
-        { iri: 'as:OrderedCollection', label: 'OrderedCollection' },
-        { iri: 'as:OrderedCollectionPage', label: 'OrderedCollectionPage' },
-        { iri: 'as:Organization', label: 'Organization' },
-        { iri: 'as:Page', label: 'Page' },
-        { iri: 'as:Person', label: 'Person' },
-        { iri: 'as:Place', label: 'Place' },
-        { iri: 'as:Profile', label: 'Profile' },
-        { iri: 'as:Question', label: 'Question' },
-        { iri: 'as:Service', label: 'Service' },
-        { iri: 'as:Tombstone', label: 'Tombstone' },
-        { iri: 'as:Video', label: 'Video' },
+    if (addedNotificationType === 'coar-notify:RelationshipAction') {
+        asObjectType = 'Relationship';
+    }
+
+    const asObjectTypes : Category[] = [
+        { iri: 'Activity', label: 'Activity' },
+        { iri: 'Application', label: 'Application' },
+        { iri: 'Article', label: 'Article' },
+        { iri: 'Audio', label: 'Audio' },
+        { iri: 'Collection', label: 'Collection' },
+        { iri: 'CollectionPage', label: 'CollectionPage' },
+        { iri: 'Document', label: 'Document' },
+        { iri: 'Event', label: 'Event' },
+        { iri: 'Group', label: 'Group' },
+        { iri: 'Image', label: 'Image' },
+        { iri: 'IntransitiveActivity', label: 'IntransitiveActivity' },
+        { iri: 'Note', label: 'Note' },
+        { iri: 'Object', label: 'Object' },
+        { iri: 'OrderedCollection', label: 'OrderedCollection' },
+        { iri: 'OrderedCollectionPage', label: 'OrderedCollectionPage' },
+        { iri: 'Organization', label: 'Organization' },
+        { iri: 'Page', label: 'Page' },
+        { iri: 'Person', label: 'Person' },
+        { iri: 'Place', label: 'Place' },
+        { iri: 'Profile', label: 'Profile' },
+        { iri: 'Question', label: 'Question' },
+        { iri: 'Relationship', label: 'Relationship' },
+        { iri: 'Service', label: 'Service' },
+        { iri: 'Tombstone', label: 'Tombstone' },
+        { iri: 'Video', label: 'Video' },
     ];
 
     // Possible sorg object type
     let sorgObjectType = 'sorg:WebPage';
 
-    const sorgObjecTypes : Category[] = [
+    const sorgObjectTypes : Category[] = [
+        { iri: 'sorg:AboutPage', label: 'AboutPage' },
+        { iri: 'sorg:AdvertiserContentArticle', label: 'AdvertiserContentArticle' },
         { iri: 'sorg:AmpStory', label: 'AmpStory' },
         { iri: 'sorg:ArchiveComponent', label: 'ArchiveComponent' },
         { iri: 'sorg:Article', label: 'Article' },
@@ -97,13 +108,16 @@
         { iri: 'sorg:Blog', label: 'Blog' },
         { iri: 'sorg:Book', label: 'Book' },
         { iri: 'sorg:Certification', label: 'Certification' },
+        { iri: 'sorg:CheckoutPage', label: 'CheckoutPage' },
         { iri: 'sorg:Chapter', label: 'Chapter' },
         { iri: 'sorg:Claim', label: 'Claim' },
         { iri: 'sorg:Clip', label: 'Clip' },
         { iri: 'sorg:Code', label: 'Code' },
         { iri: 'sorg:Collection', label: 'Collection' },
+        { iri: 'sorg:CollectionPage', label: 'CollectionPage' },
         { iri: 'sorg:ComicStory', label: 'ComicStory' },
         { iri: 'sorg:Comment', label: 'Comment' },
+        { iri: 'sorg:ContactPage', label: 'ContactPage' },
         { iri: 'sorg:Conversation', label: 'Convsersation' },
         { iri: 'sorg:Course', label: 'Course' },
         { iri: 'sorg:CreativeWorkSeason', label: 'CreativeWorkSeason' },
@@ -117,6 +131,7 @@
         { iri: 'sorg:Drawing', label: 'Drawing' },
         { iri: 'sorg:Episode', label: 'Episode' },
         { iri: 'sorg:ExercisePlan', label: 'ExercisePlan' },
+        { iri: 'sorg:FAQPage', label: 'FAQPage' },
         { iri: 'sorg:Game', label: 'Game' },
         { iri: 'sorg:Guide', label: 'Guide' },
         { iri: 'sorg:HowTo', label: 'HowTo' },
@@ -126,11 +141,13 @@
         { iri: 'sorg:HowToTip', label: 'HowToTip' },
         { iri: 'sorg:HyperToc', label: 'HyperToc' },
         { iri: 'sorg:HyperTocEntry', label: 'HyperTocEntry' },
+        { iri: 'sorg:ItemPage', label: 'ItemPage' },
         { iri: 'sorg:LearningResource', label: 'LearningResource' },
         { iri: 'sorg:Legislation', label: 'Legislation' },
         { iri: 'sorg:Manuscript', label: 'Manuscript' },
         { iri: 'sorg:Map', label: 'Map' },
         { iri: 'sorg:MathSolver', label: 'MathSolver' },
+        { iri: 'sorg:MedicalWebPage', label: 'MedicalWebPage' },
         { iri: 'sorg:Menu', label: 'Menu' },
         { iri: 'sorg:MenuSection', label: 'MenuSection' },
         { iri: 'sorg:Message', label: 'Message' },
@@ -138,22 +155,31 @@
         { iri: 'sorg:MusicComposition', label: 'MusicComposition' },
         { iri: 'sorg:MusicPlaylist', label: 'MusicPlaylist' },
         { iri: 'sorg:MusicRecording', label: 'MusicRecording' },
+        { iri: 'sorg:NewsArticle', label: 'NewsArticle' },
         { iri: 'sorg:Painting', label: 'Painting' },
         { iri: 'sorg:Photograph', label: 'Photograph' },
         { iri: 'sorg:Play', label: 'Play' },
         { iri: 'sorg:Poster', label: 'Poster' },
+        { iri: 'sorg:ProfilePage', label: 'ProfilePage' },
         { iri: 'sorg:PublicationIssue', label: 'PublicationIssue' },
         { iri: 'sorg:PublicationVolume', label: 'PublicationVolume' },
+        { iri: 'sorg:QAPage', label: 'QAPage' },
         { iri: 'sorg:Quotation', label: 'Quotation' },
+        { iri: 'sorg:RealEstateListing', label: 'RealEstateListing' },
         { iri: 'sorg:Review', label: 'Review' },
+        { iri: 'sorg:SatiricalArticle', label: 'SatiricalArticle' },
         { iri: 'sorg:Sculpture', label: 'Sculpture' },
+        { iri: 'sorg:SearchResultsPage', label: 'SearchResultsPage' },
         { iri: 'sorg:Season', label: 'Season' },
+        { iri: 'sorg:ScholarlyArticle', label: 'ScholarlyArticle' },
         { iri: 'sorg:SheetMusic', label: 'SheetMusic' },
         { iri: 'sorg:ShortStory', label: 'ShortStory' },
+        { iri: 'sorg:SocialMediaPosting', label: 'SocialMediaPosting' },
         { iri: 'sorg:SoftwareApplication', label: 'SoftwareApplication' },
         { iri: 'sorg:SoftwareSourceCode', label: 'SoftwareSourceCode' },
         { iri: 'sorg:SpecialAnnouncement', label: 'SpecialAnnouncement' },
         { iri: 'sorg:Statement', label: 'Statement' },
+        { iri: 'sorg:TechArticle', label: 'TechArticle' },
         { iri: 'sorg:TVSeason', label: 'TVSeason' },
         { iri: 'sorg:TVSeries', label: 'TVSeries' },
         { iri: 'sorg:Thesis', label: 'Thesis' },
@@ -164,11 +190,67 @@
         { iri: 'sorg:Website', label: 'Website' },
     ];
 
-    // Possible object:id
+    // Possible as:object
     let objectId : string = "";
+
+    // Possible as:relationship
+    let relationshipId : string = "";
+
+    // Possible as:subject
+    let subjectId : string = "";
 
     // Possible ietf:cite-as
     let ietfCiteAs : string = "";
+
+    // Possible context
+    let contextId : string = "";
+    let contextIetfCiteAs : string = "";
+    let contextAsType : string = "Page";
+    let contextSorgType : string = "AboutPage";
+    let contextItemId : string = "";
+    let contextItemMediaType : string = "";
+    let contextItemAsType : string = "";
+    let contextItemSorgType : string = "";
+
+    if (notification.object?.object) {
+        const obj = notification.object.object;
+        if (obj.id) {
+            contextId = obj.id;
+        }
+        if ( (obj as PageObject).citeAs ) {
+            contextIetfCiteAs = (obj as PageObject).citeAs!;
+        }
+        if (obj.type && obj.type.some( item => item.startsWith(AS))) {
+            const item = obj.type.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
+            if (item) {
+                contextAsType = item;
+            }
+        }
+        if (obj.type && obj.type.some( item => item.startsWith(SORG))) {
+            const item = obj.type.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
+            if (item) {
+                contextSorgType = item;
+            }
+        }
+        if ( (obj as PageObject).item?.id ) {
+            contextItemId = (obj as PageObject).item?.id!;
+        }
+        if ( (obj as PageObject).item?.mediaType ) {
+            contextItemMediaType = (obj as PageObject).item?.mediaType!;
+        }
+        if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(AS))) {
+            const item = (obj as PageObject).item?.type?.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
+            if (item) {
+                contextItemAsType = item;
+            }
+        }
+        if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(SORG))) {
+            const item = (obj as PageObject).item?.type?.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
+            if (item) {
+                contextItemSorgType = item;
+            }
+        }
+    }
 
     function handleReset() {
         inbox = inboxInit;
@@ -205,19 +287,56 @@
         }
 
         if (notificationType === 'Announce') {
-            let announceObject : any = { 
-                id: objectId,
-                type: [ asObjectType , sorgObjectType ]
-            };
+            if (addedNotificationType === 'coar-notify:RelationshipAction') {
+                let announceObject : any = { 
+                    id: genUUID(),
+                    type: asObjectType,
+                    "as:subject": subjectId,
+                    "as:relationship": relationshipId,
+                    "as:object": objectId
+                };
 
-            if (ietfCiteAs) {
-                announceObject['ietf:cite-as'] = ietfCiteAs;
-            }
+                payload['object'] = announceObject;
 
-            payload['object'] = announceObject;
-
-            if (addedNotificationType !== '') {
                 payload['type'] = [ 'Announce' , addedNotificationType ];
+                
+                if (contextId.length) {
+                    payload['context'] = { 
+                        id : contextId,
+                        type: [ contextAsType , contextSorgType ]
+                    };
+
+                    if (contextIetfCiteAs.length) {
+                        payload['context']['ietf:cite-as'] = contextIetfCiteAs;
+                    }
+
+                    if (contextItemId.length && 
+                        contextItemMediaType.length &&
+                        contextItemAsType.length && 
+                        contextItemSorgType.length) {
+                        payload['context']['ietf:item'] = {
+                            id: contextItemId ,
+                            mediaType: contextItemMediaType ,
+                            type: [ contextItemAsType , contextItemSorgType ]
+                        };
+                    }
+                }
+            }
+            else {
+                let announceObject : any = { 
+                    id: objectId,
+                    type: [ asObjectType , sorgObjectType ]
+                };
+
+                if (ietfCiteAs) {
+                    announceObject['ietf:cite-as'] = ietfCiteAs;
+                }
+
+                payload['object'] = announceObject;
+
+                if (addedNotificationType !== '') {
+                    payload['type'] = [ 'Announce' , addedNotificationType ];
+                }
             }
         }
 
@@ -294,6 +413,31 @@
     {#if notificationType === 'Announce'}
         <h3>What</h3>
 
+        {#if addedNotificationType === 'coar-notify:RelationshipAction'}
+        <div class="mb-3">
+            <label for="notifSubject" class="form-label">Subject</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="notifSubject" 
+                bind:value={subjectId}
+                placeholder="e.g. A subject URL"
+                required
+            />
+        </div>
+        <div class="mb-3">
+            <label for="notifRelationship" class="form-label">Relationship</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="notifRelationship" 
+                bind:value={relationshipId}
+                placeholder="e.g. A relationship URI"
+                required
+            />
+        </div>
+        {/if}
+ 
         <div class="mb-3">
             <label for="notifObject" class="form-label">Object</label>
             <input 
@@ -301,10 +445,11 @@
                 class="form-control" 
                 id="notifObject"
                 bind:value={objectId}
-                placeholder="e.g. An internet resource URL"
+                placeholder="e.g. A resource URL"
                 required
             />
         </div>
+
         {#if addedNotificationType === 'coar-notify:EndorsementAction' || addedNotificationType === 'coar-notify:ReviewAction'}
         <div class="mb-3">
             <label for="notifIETFCiteAs" class="form-label">Cite As</label>
@@ -313,26 +458,112 @@
                 class="form-control" 
                 id="notifIETFCiteAs" 
                 bind:value={ietfCiteAs}
-                placeholder="e.g. An internet resource URL"
+                placeholder="e.g. A citable resource URL"
                 required
             />
         </div>
         {/if}
+
         <div class="mb-3">
             <label for="notifAsObjectType" class="form-label">Type</label>
+            {#if addedNotificationType === 'coar-notify:RelationshipAction'}
+            <i>as:Relationship</i>
+            {:else}
             <i>as:</i>
             <select bind:value={asObjectType}>
-            {#each asObjecTypes as option}
+            {#each asObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
             </select>
             <i>sorg:</i>
             <select bind:value={sorgObjectType}>
-            {#each sorgObjecTypes as option}
+            {#each sorgObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+            </select>
+            {/if}
+        </div>
+
+        {#if addedNotificationType === 'coar-notify:RelationshipAction'}
+        <h3>Context</h3>
+
+        <div class="mb-3">
+            <label for="contextId" class="form-label">Id (landing page)</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="contextId" 
+                bind:value={contextId}
+                placeholder="e.g. A resource landing page URL"
+                required
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="contextIetfCiteAs" class="form-label">Cite As</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="contextIetfCiteAs" 
+                bind:value={contextIetfCiteAs}
+                placeholder="e.g. A citable resource URL"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="contextType" class="form-label">Type</label>
+            <i>as:</i>
+            <select bind:value={contextAsType}>
+            {#each asObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+            </select>
+            <i>sorg:</i>
+            <select bind:value={contextSorgType}>
+            {#each sorgObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
             </select>
         </div>
+
+        <div class="mb-3">
+            <label for="contextItemId" class="form-label">Item (content resource)</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="contextItemId" 
+                bind:value={contextItemId}
+                placeholder="e.g. A resource item URL"
+            />
+        </div>
+        
+        <div class="mb-3">
+            <label for="contextItemMediaType" class="form-label">Media Type</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="contextItemMediaType" 
+                bind:value={contextItemMediaType}
+                placeholder="e.g. A media type for the item"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="contextItemType" class="form-label">Type</label>
+            <i>as:</i>
+            <select bind:value={contextItemAsType}>
+            {#each asObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+            </select>
+            <i>sorg:</i>
+            <select bind:value={contextItemSorgType}>
+            {#each sorgObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+            </select>
+        </div>
+        {/if}
     {/if}
 
     {#if isTentative}

@@ -46,7 +46,7 @@ export interface GenericObject {
     type?: string[];
     inReplyTo?: string[];
     actor?: Agent;
-    context?: GenericObject;
+    context?: GenericObject | PageObject;
     origin?: Agent;
     object?: GenericObject | PageObject | RelationshipObject;
     target?: Agent;

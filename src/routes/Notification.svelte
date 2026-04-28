@@ -59,10 +59,10 @@
       <div class="tab-container">
         <nav>
             {#each tabs as tab}
-                <button 
-                    class={tab.class}
-                    class:active={activeTab === tab} 
-                    on:click={() => activeTab = tab}
+            <button 
+              class={tab.class}
+              class:active={activeTab === tab} 
+              on:click={() => activeTab = tab}
             >
             {tab.label}
             </button> 

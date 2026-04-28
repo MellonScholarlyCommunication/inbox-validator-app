@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { type GenericObject } from "../../inbox";
+    import { type GenericObject, type PageObject } from "../../inbox";
     import Agent from "./Agent.svelte";
     import Relationship from "./Relationship.svelte";
     import ParsedNotification from "./ParsedNotification.svelte";
     import Page from "./Page.svelte";
     export let object: GenericObject | undefined;
+
+    let contextObject: PageObject | undefined;
+    $: contextObject = object?.context as PageObject | undefined;
     
     function cleanNS(term: string) {
         if (term) {
@@ -97,7 +100,11 @@
         {#if object.context} 
             <dt>Context</dt>
             <dd>
-                <a href={object.context.id}>{object.context.id}</a>
+                🔗 <a href="{object.context.id}">{object.context.id}</a>
+                {#if contextObject?.item}
+                    <br/>
+                    📁 <a href="{contextObject.item.id}">{contextObject.item.id}</a> ({contextObject.item.mediaType})
+                {/if}
             </dd>
         {/if}
     </dl>
@@ -126,6 +133,10 @@
   .parsed-head {
     background-color: #EEEEEE;
     padding: 4px;
+  }
+
+  .parsed-head a {
+    color: black;
   }
 
   .parsed-head dt {
