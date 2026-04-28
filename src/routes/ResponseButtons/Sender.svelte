@@ -290,7 +290,7 @@
             if (addedNotificationType === 'coar-notify:RelationshipAction') {
                 let announceObject : any = { 
                     id: genUUID(),
-                    type: asObjectType,
+                    type: 'Relationship',
                     "as:subject": subjectId,
                     "as:relationship": relationshipId,
                     "as:object": objectId
@@ -298,7 +298,7 @@
 
                 payload['object'] = announceObject;
 
-                payload['type'] = [ 'Announce' , addedNotificationType ];
+                payload['type'] = [ 'Announce' , 'coar-notify:RelationshipAction' ];
                 
                 if (contextId.length) {
                     payload['context'] = { 
