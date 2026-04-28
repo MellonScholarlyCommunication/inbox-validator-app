@@ -74,6 +74,10 @@
         <dt>From</dt>
         <dd><Agent actor={object.actor}/></dd>
     {/if}
+    {#if object.origin}
+        <dt>Via</dt>
+        <dd><Agent actor={object.origin}/></dd>
+    {/if}
     {#if object.target}
         <dt>To</dt>
         <dd><Agent actor={object.target}/></dd>
