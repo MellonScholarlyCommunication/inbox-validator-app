@@ -13,6 +13,7 @@
         announceTypes, asObjectTypes, sorgObjectTypes
     } from '../../globals';
     import To from './SenderParts/To.svelte';
+    import ItemObject from './SenderParts/ItemObject.svelte';
    
     export let notificationType = 'Accept';
 
@@ -370,83 +371,15 @@
 
         <h3>Context</h3>
 
-        <div class="mb-3">
-            <label for="contextId" class="form-label">Id (landing page)</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="contextId" 
-                bind:value={contextId}
-                placeholder="e.g. A resource landing page URL"
-                required
-            />
-        </div>
-
-        <div class="mb-3">
-            <label for="contextIetfCiteAs" class="form-label">Cite As</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="contextIetfCiteAs" 
-                bind:value={contextIetfCiteAs}
-                placeholder="e.g. A citable resource URL"
-            />
-        </div>
-
-        <div class="mb-3">
-            <label for="contextType" class="form-label">Type</label>
-            <i>as:</i>
-            <select bind:value={contextAsType}>
-            {#each asObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-            <i>sorg:</i>
-            <select bind:value={contextSorgType}>
-            {#each sorgObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="contextItemId" class="form-label">Item (content resource)</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="contextItemId" 
-                bind:value={contextItemId}
-                placeholder="e.g. A resource item URL"
-            />
-        </div>
-        
-        <div class="mb-3">
-            <label for="contextItemMediaType" class="form-label">Media Type</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="contextItemMediaType" 
-                bind:value={contextItemMediaType}
-                required={contextItemRequired}
-                placeholder="e.g. A media type for the item"
-            />
-        </div>
-
-        <div class="mb-3">
-            <label for="contextItemType" class="form-label">Type</label>
-            <i>as:</i>
-            <select bind:value={contextItemAsType} required={contextItemRequired}>
-            {#each asObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-            <i>sorg:</i>
-            <select bind:value={contextItemSorgType} required={contextItemRequired}>
-            {#each sorgObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-        </div>
+        <ItemObject 
+            bind:id={contextId} 
+            bind:ietfCiteAs={contextIetfCiteAs}
+            bind:asType={contextAsType}
+            bind:sorgType={contextSorgType}
+            bind:itemId={contextItemId}
+            bind:itemMediaType={contextItemMediaType}
+            bind:itemAsType={contextItemAsType}
+            bind:itemSorgType={contextItemSorgType}/>
     {/if}
 
     {#if isTentative || notificationType === 'Flag'}
