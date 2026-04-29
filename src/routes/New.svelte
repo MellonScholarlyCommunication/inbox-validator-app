@@ -3,6 +3,7 @@
     import type { ComponentType } from 'svelte';
     import { notificationData } from '../store';
     import Announce from './ResponseButtons/Announce.svelte';
+    import Offer from './ResponseButtons/Offer.svelte';
     import { getNewNotification , type Notification } from "../inbox";
     import { onMount } from 'svelte';
 
@@ -16,6 +17,7 @@
     }
 
     const tabs : Tab[] = [
+      { label: 'Offer', component: Offer, class: 'btn btn-success' },
       { label: 'Announce', component: Announce , class: 'btn btn-success' }
     ];
 

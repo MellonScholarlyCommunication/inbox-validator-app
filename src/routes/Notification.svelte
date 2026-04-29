@@ -14,6 +14,8 @@
   import Flag from './ResponseButtons/Flag.svelte';
   import Announce from './ResponseButtons/Announce.svelte';
 
+  const AS = 'https://www.w3.org/ns/activitystreams#';
+
   export let params: { name?: string } = {};
 
   let showToast = false;
@@ -28,18 +30,28 @@
       class: string;
   }
 
-  const tabs : Tab[] = [
-      { label: 'Validate', component: Validate , class: 'btn btn-primary' },
-      { label: 'Flag', component: Flag , class: 'btn btn-danger' },
-      { label: 'Accept', component: Accept , class: 'btn btn-info' },
-      { label: 'Reject', component: Reject , class: 'btn btn-warning' },
-      { label: 'Announce', component: Announce , class: 'btn btn-success' }
-  ];
+  let tabs : Tab[] = [];
+
+  
 
   let activeTab : Tab | null = null;
 
   onMount(async () => {
       $notificationData = await getNotification(notificationUrl) as Notification;
+      if ($notificationData?.object?.type?.includes(`${AS}Offer`)) {
+        tabs = [
+          { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+          { label: 'Flag', component: Flag , class: 'btn btn-danger' },
+          { label: 'Accept', component: Accept , class: 'btn btn-info' },
+          { label: 'Reject', component: Reject , class: 'btn btn-warning' },
+          { label: 'Announce', component: Announce , class: 'btn btn-success' }
+        ];
+      }
+      else {
+        tabs = [
+          { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+        ]; 
+      }
   });
 </script>
 
