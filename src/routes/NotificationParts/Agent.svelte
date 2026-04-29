@@ -22,7 +22,7 @@
 {/if}
 
 {#if actor.id === $defaultActor.id}
- (that  is you)
+ (👈 that is you)
 {/if}
 </div>
 

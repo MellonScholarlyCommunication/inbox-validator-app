@@ -342,6 +342,9 @@
 
         if (isTentative) {
             payload['type'] = 'Tentative' + notificationType;
+        }
+
+        if (isTentative || notificationType === 'Flag') {
             payload['summary'] = summary;
         }
 
@@ -566,7 +569,7 @@
         {/if}
     {/if}
 
-    {#if isTentative}
+    {#if isTentative || notificationType === 'Flag'}
         <div class="mb-3">
             <label class="form-label" for="summary"><b>Summary</b></label>
             <input 
@@ -574,7 +577,7 @@
                 type="text" 
                 id="summary" 
                 bind:value={summary}
-                placeholder="Write a short summary why you tentative {notificationType.toLowerCase()} this notification."
+                placeholder="Write a short summary why you {notificationType.toLowerCase()} this notification."
                 required>
         </div> 
     {/if}

@@ -18,7 +18,14 @@
         }
     }
 
-    function requestType(types: string[]) {
+    function requestType(object: GenericObject) {
+        const types = object?.type;
+        if (!types) {
+            return "Unknown";
+        }
+        if (object.inReplyTo) {
+            return "Response";
+        }
         for (let i = 0 ; i < types.length ; i++) {
             switch (types[i]) {
                 case 'https://www.w3.org/ns/activitystreams#Accept':
@@ -85,31 +92,31 @@
         <dt>To</dt>
         <dd><Agent actor={object.target}/></dd>
     {/if}
-    {#if object.summary}
-            <dt>Summary</dt>
-            <dd>
-                {object.summary}
-            </dd>
-        {/if}
-        {#if object.inReplyTo} 
-            <dt>InReplyTo</dt>
-            <dd>
-                {object.inReplyTo}
-            </dd>
-        {/if}
-        {#if object.context} 
-            <dt>Context</dt>
-            <dd>
-                🔗 <a href="{object.context.id}">{object.context.id}</a>
-                {#if contextObject?.item}
-                    <br/>
-                    📁 <a href="{contextObject.item.id}">{contextObject.item.id}</a> ({contextObject.item.mediaType})
-                {/if}
-            </dd>
-        {/if}
+    {#if object.inReplyTo} 
+        <dt>InReplyTo</dt>
+        <dd>
+            {object.inReplyTo}
+        </dd>
+    {/if}
+    {#if object.context} 
+        <dt>Context</dt>
+        <dd>
+            🔗 <a href="{object.context.id}">{object.context.id}</a>
+            {#if contextObject?.item}
+                <br/>
+                📁 <a href="{contextObject.item.id}">{contextObject.item.id}</a> ({contextObject.item.mediaType})
+            {/if}
+        </dd>
+    {/if}
     </dl>
+    {#if object.summary}
+        <h4>Summary</h4>
+        <p>
+            {object.summary}
+        </p>
+    {/if}
     {#if object.type && object.type.length > 0}
-        <h4>{@html requestIcon(object.type)} {requestType(object.type)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
+        <h4>{@html requestIcon(object.type)} {requestType(object)} : {object.type?.map(s => cleanNS(s)).join(" + ")}</h4>
     {:else}
         <h4>Body</h4>
     {/if}

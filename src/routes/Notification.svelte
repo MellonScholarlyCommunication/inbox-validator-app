@@ -11,6 +11,7 @@
   import Validate from './ResponseButtons/Validate.svelte';
   import Accept from './ResponseButtons/Accept.svelte';
   import Reject from './ResponseButtons/Reject.svelte';
+  import Flag from './ResponseButtons/Flag.svelte';
   import Announce from './ResponseButtons/Announce.svelte';
 
   export let params: { name?: string } = {};
@@ -29,6 +30,7 @@
 
   const tabs : Tab[] = [
       { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+      { label: 'Flag', component: Flag , class: 'btn btn-danger' },
       { label: 'Accept', component: Accept , class: 'btn btn-info' },
       { label: 'Reject', component: Reject , class: 'btn btn-warning' },
       { label: 'Announce', component: Announce , class: 'btn btn-success' }
