@@ -107,6 +107,19 @@ export async function getNotification(url: string) : Promise<Notification> {
     return parseNotification(text,"application/ld+json");
 }
 
+export async function getNewNotification() : Promise<Notification> {
+    const data = {
+        "@context": [
+            "https://www.w3.org/ns/activitystreams",
+            "https://coar-notify.net"
+        ],
+        "id": genUUID(),
+        "type": "Announce"
+    };
+    
+    return parseNotification(JSON.stringify(data),"application/ld+json");
+}
+
 export async function listInbox(url: string) : Promise<Member[]> {
     const response = await fetch(url, {
         headers: {

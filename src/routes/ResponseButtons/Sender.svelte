@@ -8,6 +8,7 @@
         sendNotification } from '../../inbox';
     import { createEventDispatcher } from 'svelte';
     import whooshUrl from '../../assets/woosh.mp3';
+    import { THIS_ACTOR } from '../../globals';
    
     export let notificationType = 'Accept';
 
@@ -211,6 +212,12 @@
     let contextItemMediaType : string = "";
     let contextItemAsType : string = "";
     let contextItemSorgType : string = "";
+    $: contextItemRequired = contextItemId.trim() !== '';
+
+    // Possible target
+    let targetId : string = notification.object?.target?.id ?? "";
+    let targetName : string = notification.object?.target?.name ?? "" ;
+    let targetType : string = notification.object?.target?.type.replace(AS,"") ?? "";
 
     if (notification.object?.object) {
         const obj = notification.object.object;
@@ -269,37 +276,65 @@
     let errorMessage = "";
 
     async function handleSubmit() {
-        if (!inbox) {
-            return;
-        }
+        try {
+            if (!inbox) {
+                return;
+            }
 
-        let payload : any = {
-            '@context': [
-                "https://www.w3.org/ns/activitystreams",
-                "https://coar-notify.net"
-            ],
-            'id': genUUID(),
-            'type': notificationType,
-            'actor': $defaultActor,
-            'origin': $defaultOrigin,
-            'object': notification.object,
-            'target': notification.object?.actor
-        }
+            let payload : any = {
+                '@context': [
+                    "https://www.w3.org/ns/activitystreams",
+                    "https://coar-notify.net"
+                ],
+                'id': genUUID(),
+                'type': notificationType,
+                'actor': $defaultActor,
+                'origin': $defaultOrigin,
+                'object': notification.object,
+                'target': notification.object?.actor
+            }
 
-        if (notificationType === 'Announce') {
-            if (addedNotificationType === 'coar-notify:RelationshipAction') {
-                let announceObject : any = { 
-                    id: genUUID(),
-                    type: 'Relationship',
-                    "as:subject": subjectId,
-                    "as:relationship": relationshipId,
-                    "as:object": objectId
-                };
+            if (targetId.length) {
+                payload['target'] = { id: targetId };
+                if (targetName.length) {
+                    payload['target']['name'] = targetName;
+                }
+                if (targetName.length) {
+                    payload['target']['type'] = targetType;
+                }
+            }
 
-                payload['object'] = announceObject;
+            if (notificationType === 'Announce') {
+                if (addedNotificationType === 'coar-notify:RelationshipAction') {
+                    let announceObject : any = { 
+                        id: genUUID(),
+                        type: 'Relationship',
+                        "as:subject": subjectId,
+                        "as:relationship": relationshipId,
+                        "as:object": objectId
+                    };
 
-                payload['type'] = [ 'Announce' , 'coar-notify:RelationshipAction' ];
-                
+                    payload['object'] = announceObject;
+
+                    payload['type'] = [ 'Announce' , 'coar-notify:RelationshipAction' ];
+                }
+                else {
+                    let announceObject : any = { 
+                        id: objectId,
+                        type: [ asObjectType , sorgObjectType ]
+                    };
+
+                    if (ietfCiteAs) {
+                        announceObject['ietf:cite-as'] = ietfCiteAs;
+                    }
+
+                    payload['object'] = announceObject;
+
+                    if (addedNotificationType !== '') {
+                        payload['type'] = [ 'Announce' , addedNotificationType ];
+                    }
+                }    
+
                 if (contextId.length) {
                     payload['context'] = { 
                         id : contextId,
@@ -310,45 +345,31 @@
                         payload['context']['ietf:cite-as'] = contextIetfCiteAs;
                     }
 
-                    if (contextItemId.length && 
-                        contextItemMediaType.length &&
-                        contextItemAsType.length && 
-                        contextItemSorgType.length) {
-                        payload['context']['ietf:item'] = {
-                            id: contextItemId ,
-                            mediaType: contextItemMediaType ,
-                            type: [ contextItemAsType , contextItemSorgType ]
-                        };
+                    if (contextItemId.length) {
+                        if (contextItemMediaType.length &&
+                            contextItemAsType.length && 
+                            contextItemSorgType.length) {
+                            payload['context']['ietf:item'] = {
+                                id: contextItemId ,
+                                mediaType: contextItemMediaType ,
+                                type: [ contextItemAsType , contextItemSorgType ]
+                            };
+                        }
+                        else {
+                            throw new Error("Context item needs a mediaType and an as:+sorg type")
+                        }
                     }
                 }
             }
-            else {
-                let announceObject : any = { 
-                    id: objectId,
-                    type: [ asObjectType , sorgObjectType ]
-                };
 
-                if (ietfCiteAs) {
-                    announceObject['ietf:cite-as'] = ietfCiteAs;
-                }
-
-                payload['object'] = announceObject;
-
-                if (addedNotificationType !== '') {
-                    payload['type'] = [ 'Announce' , addedNotificationType ];
-                }
+            if (isTentative) {
+                payload['type'] = 'Tentative' + notificationType;
             }
-        }
 
-        if (isTentative) {
-            payload['type'] = 'Tentative' + notificationType;
-        }
+            if (isTentative || notificationType === 'Flag') {
+                payload['summary'] = summary;
+            }
 
-        if (isTentative || notificationType === 'Flag') {
-            payload['summary'] = summary;
-        }
-
-        try {
             await sendNotification(inbox,payload); 
             dispatch('changeTab','Successfully Sent Notification!');
             playWhoosh();
@@ -402,15 +423,48 @@
 <form on:submit|preventDefault={handleSubmit}>
     <h3>To</h3>
     <div class="mb-3">
+        <label for="notifTargetId" class="form-label">Id</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="notifTargetId" 
+            placeholder="e.g. A target URI"
+            bind:value={targetId} 
+            required
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="notifTargetName" class="form-label">Name</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="notifTargetName" 
+            placeholder="e.g. A target name"
+            bind:value={targetName} 
+        />
+    </div>
+
+    <div class="mb-3">
         <label for="notifInbox" class="form-label">Inbox</label>
         <input 
             type="text" 
             class="form-control" 
             id="notifId" 
-            placeholder="e.g. NOTIF-001"
+            placeholder="e.g. An LDN Inbox URL"
             bind:value={inbox} 
             required
         />
+    </div>
+
+    <div class="mb-3">
+        <label for="notifTargetType" class="form-label">Type</label>
+        <i>as:</i>
+        <select bind:value={targetType} required>
+        {#each asObjectTypes as option}
+            <option value={option.iri}>{option.label}</option>
+        {/each}
+        </select> 
     </div>
 
     {#if notificationType === 'Announce'}
@@ -462,7 +516,6 @@
                 id="notifIETFCiteAs" 
                 bind:value={ietfCiteAs}
                 placeholder="e.g. A citable resource URL"
-                required
             />
         </div>
         {/if}
@@ -473,13 +526,13 @@
             <i>as:Relationship</i>
             {:else}
             <i>as:</i>
-            <select bind:value={asObjectType}>
+            <select bind:value={asObjectType} required>
             {#each asObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
             </select>
             <i>sorg:</i>
-            <select bind:value={sorgObjectType}>
+            <select bind:value={sorgObjectType} required>
             {#each sorgObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
@@ -487,7 +540,6 @@
             {/if}
         </div>
 
-        {#if addedNotificationType === 'coar-notify:RelationshipAction'}
         <h3>Context</h3>
 
         <div class="mb-3">
@@ -547,6 +599,7 @@
                 class="form-control" 
                 id="contextItemMediaType" 
                 bind:value={contextItemMediaType}
+                required={contextItemRequired}
                 placeholder="e.g. A media type for the item"
             />
         </div>
@@ -554,19 +607,18 @@
         <div class="mb-3">
             <label for="contextItemType" class="form-label">Type</label>
             <i>as:</i>
-            <select bind:value={contextItemAsType}>
+            <select bind:value={contextItemAsType} required={contextItemRequired}>
             {#each asObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
             </select>
             <i>sorg:</i>
-            <select bind:value={contextItemSorgType}>
+            <select bind:value={contextItemSorgType} required={contextItemRequired}>
             {#each sorgObjectTypes as option}
                 <option value={option.iri}>{option.label}</option>
             {/each}
             </select>
         </div>
-        {/if}
     {/if}
 
     {#if isTentative || notificationType === 'Flag'}
@@ -593,5 +645,10 @@
 <style>
     label {
         font-weight: bold;
+    }
+
+    input:required,
+    select:required {
+        border-left: 3px solid red;
     }
 </style>

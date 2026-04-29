@@ -20,7 +20,7 @@
     }
 </script>
 
-<h3>Configuration</h3>
+<h3>Settings</h3>
 
 <nav class="navbar">
     <a href="/" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>

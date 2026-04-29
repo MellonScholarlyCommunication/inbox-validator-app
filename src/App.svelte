@@ -12,10 +12,16 @@
 					class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
 				>
 					<h2 class="h5 mb-0" id="app-title">INBOX VIEWER</h2>
+					 <div>
+						<button 
+          				class="btn btn-light"
+						on:click={ () => push('/new')} 
+		  				>New Notification</button>
 						<button 
           				class="btn btn-light"
 						on:click={ () => push('/configure')} 
-		  				>Configure</button>
+		  				>&#x2699;&#xFE0F;</button>
+					</div>
 				</div>
 
 				<div class="card-body">
