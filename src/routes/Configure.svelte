@@ -1,8 +1,8 @@
 <script lang="ts">
     import { link } from 'svelte-spa-router';
     import { defaultActor, defaultOrigin } from '../store';
+    import { AS } from '../globals';
 
-    const AS = 'https://www.w3.org/ns/activitystreams#';
     // Possible actor types (limited for now)...
     interface Category {
         iri: string;

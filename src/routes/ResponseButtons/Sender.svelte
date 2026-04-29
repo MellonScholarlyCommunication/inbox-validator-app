@@ -8,13 +8,13 @@
         sendNotification } from '../../inbox';
     import { createEventDispatcher } from 'svelte';
     import whooshUrl from '../../assets/woosh.mp3';
-    import { THIS_ACTOR } from '../../globals';
+    import { 
+        AS, COAR_NOTIFY, SORG, 
+        announceTypes, asObjectTypes, sorgObjectTypes
+    } from '../../globals';
+    import To from './SenderParts/To.svelte';
    
     export let notificationType = 'Accept';
-
-    const AS = 'https://www.w3.org/ns/activitystreams#';
-    const COAR_NOTIFY = 'http://coar-notify.net/specification/vocabulary/';
-    const SORG = 'http://schema.org/';
 
     const dispatch = createEventDispatcher();
 
@@ -34,12 +34,7 @@
             notification.object?.origin?.inbox :
             notification.object?.actor?.inbox;
 
-    let inbox: string | undefined = inboxInit;
-
-    interface Category {
-        iri: string;
-        label: string;
-    }
+    let inbox: string = inboxInit ?? "";
 
     // Possible announce types
     let addedNotificationType: string = '';
@@ -54,13 +49,6 @@
         addedNotificationType = '';
     }
 
-    const announceTypes : Category[] = [
-        { iri: '', label: 'GenericAction' },
-        { iri: `coar-notify:EndorsementAction`, label: 'EndorsementAction' },
-        { iri: `coar-notify:RelationshipAction`, label: 'RelationshipAction' },
-        { iri: `coar-notify:ReviewAction`, label: 'ReviewAction' },
-    ];
-
     // Possible AS object type
     let asObjectType: string = "Page";
 
@@ -68,128 +56,8 @@
         asObjectType = 'Relationship';
     }
 
-    const asObjectTypes : Category[] = [
-        { iri: 'Activity', label: 'Activity' },
-        { iri: 'Application', label: 'Application' },
-        { iri: 'Article', label: 'Article' },
-        { iri: 'Audio', label: 'Audio' },
-        { iri: 'Collection', label: 'Collection' },
-        { iri: 'CollectionPage', label: 'CollectionPage' },
-        { iri: 'Document', label: 'Document' },
-        { iri: 'Event', label: 'Event' },
-        { iri: 'Group', label: 'Group' },
-        { iri: 'Image', label: 'Image' },
-        { iri: 'IntransitiveActivity', label: 'IntransitiveActivity' },
-        { iri: 'Note', label: 'Note' },
-        { iri: 'Object', label: 'Object' },
-        { iri: 'OrderedCollection', label: 'OrderedCollection' },
-        { iri: 'OrderedCollectionPage', label: 'OrderedCollectionPage' },
-        { iri: 'Organization', label: 'Organization' },
-        { iri: 'Page', label: 'Page' },
-        { iri: 'Person', label: 'Person' },
-        { iri: 'Place', label: 'Place' },
-        { iri: 'Profile', label: 'Profile' },
-        { iri: 'Question', label: 'Question' },
-        { iri: 'Relationship', label: 'Relationship' },
-        { iri: 'Service', label: 'Service' },
-        { iri: 'Tombstone', label: 'Tombstone' },
-        { iri: 'Video', label: 'Video' },
-    ];
-
     // Possible sorg object type
     let sorgObjectType = 'sorg:WebPage';
-
-    const sorgObjectTypes : Category[] = [
-        { iri: 'sorg:AboutPage', label: 'AboutPage' },
-        { iri: 'sorg:AdvertiserContentArticle', label: 'AdvertiserContentArticle' },
-        { iri: 'sorg:AmpStory', label: 'AmpStory' },
-        { iri: 'sorg:ArchiveComponent', label: 'ArchiveComponent' },
-        { iri: 'sorg:Article', label: 'Article' },
-        { iri: 'sorg:Atlas', label: 'Atlas' },
-        { iri: 'sorg:Blog', label: 'Blog' },
-        { iri: 'sorg:Book', label: 'Book' },
-        { iri: 'sorg:Certification', label: 'Certification' },
-        { iri: 'sorg:CheckoutPage', label: 'CheckoutPage' },
-        { iri: 'sorg:Chapter', label: 'Chapter' },
-        { iri: 'sorg:Claim', label: 'Claim' },
-        { iri: 'sorg:Clip', label: 'Clip' },
-        { iri: 'sorg:Code', label: 'Code' },
-        { iri: 'sorg:Collection', label: 'Collection' },
-        { iri: 'sorg:CollectionPage', label: 'CollectionPage' },
-        { iri: 'sorg:ComicStory', label: 'ComicStory' },
-        { iri: 'sorg:Comment', label: 'Comment' },
-        { iri: 'sorg:ContactPage', label: 'ContactPage' },
-        { iri: 'sorg:Conversation', label: 'Convsersation' },
-        { iri: 'sorg:Course', label: 'Course' },
-        { iri: 'sorg:CreativeWorkSeason', label: 'CreativeWorkSeason' },
-        { iri: 'sorg:CreativeWorkSeries', label: 'CreativeWorkSeries' },
-        { iri: 'sorg:Credential', label: 'Credential' },
-        { iri: 'sorg:DataCatalog', label: 'DataCatalog' },
-        { iri: 'sorg:Dataset', label: 'Dataset' },
-        { iri: 'sorg:DefinedTermSet', label: 'DefinedTermSet' },
-        { iri: 'sorg:Diet', label: 'Diet' },
-        { iri: 'sorg:DigitalDocument', label: 'DigitalDocument' },
-        { iri: 'sorg:Drawing', label: 'Drawing' },
-        { iri: 'sorg:Episode', label: 'Episode' },
-        { iri: 'sorg:ExercisePlan', label: 'ExercisePlan' },
-        { iri: 'sorg:FAQPage', label: 'FAQPage' },
-        { iri: 'sorg:Game', label: 'Game' },
-        { iri: 'sorg:Guide', label: 'Guide' },
-        { iri: 'sorg:HowTo', label: 'HowTo' },
-        { iri: 'sorg:HowToDirection', label: 'HowToDirection' },
-        { iri: 'sorg:HowToSection', label: 'HowToSection' },
-        { iri: 'sorg:HowToStep', label: 'HowToStep' },
-        { iri: 'sorg:HowToTip', label: 'HowToTip' },
-        { iri: 'sorg:HyperToc', label: 'HyperToc' },
-        { iri: 'sorg:HyperTocEntry', label: 'HyperTocEntry' },
-        { iri: 'sorg:ItemPage', label: 'ItemPage' },
-        { iri: 'sorg:LearningResource', label: 'LearningResource' },
-        { iri: 'sorg:Legislation', label: 'Legislation' },
-        { iri: 'sorg:Manuscript', label: 'Manuscript' },
-        { iri: 'sorg:Map', label: 'Map' },
-        { iri: 'sorg:MathSolver', label: 'MathSolver' },
-        { iri: 'sorg:MedicalWebPage', label: 'MedicalWebPage' },
-        { iri: 'sorg:Menu', label: 'Menu' },
-        { iri: 'sorg:MenuSection', label: 'MenuSection' },
-        { iri: 'sorg:Message', label: 'Message' },
-        { iri: 'sorg:Movie', label: 'Movie' },
-        { iri: 'sorg:MusicComposition', label: 'MusicComposition' },
-        { iri: 'sorg:MusicPlaylist', label: 'MusicPlaylist' },
-        { iri: 'sorg:MusicRecording', label: 'MusicRecording' },
-        { iri: 'sorg:NewsArticle', label: 'NewsArticle' },
-        { iri: 'sorg:Painting', label: 'Painting' },
-        { iri: 'sorg:Photograph', label: 'Photograph' },
-        { iri: 'sorg:Play', label: 'Play' },
-        { iri: 'sorg:Poster', label: 'Poster' },
-        { iri: 'sorg:ProfilePage', label: 'ProfilePage' },
-        { iri: 'sorg:PublicationIssue', label: 'PublicationIssue' },
-        { iri: 'sorg:PublicationVolume', label: 'PublicationVolume' },
-        { iri: 'sorg:QAPage', label: 'QAPage' },
-        { iri: 'sorg:Quotation', label: 'Quotation' },
-        { iri: 'sorg:RealEstateListing', label: 'RealEstateListing' },
-        { iri: 'sorg:Review', label: 'Review' },
-        { iri: 'sorg:SatiricalArticle', label: 'SatiricalArticle' },
-        { iri: 'sorg:Sculpture', label: 'Sculpture' },
-        { iri: 'sorg:SearchResultsPage', label: 'SearchResultsPage' },
-        { iri: 'sorg:Season', label: 'Season' },
-        { iri: 'sorg:ScholarlyArticle', label: 'ScholarlyArticle' },
-        { iri: 'sorg:SheetMusic', label: 'SheetMusic' },
-        { iri: 'sorg:ShortStory', label: 'ShortStory' },
-        { iri: 'sorg:SocialMediaPosting', label: 'SocialMediaPosting' },
-        { iri: 'sorg:SoftwareApplication', label: 'SoftwareApplication' },
-        { iri: 'sorg:SoftwareSourceCode', label: 'SoftwareSourceCode' },
-        { iri: 'sorg:SpecialAnnouncement', label: 'SpecialAnnouncement' },
-        { iri: 'sorg:Statement', label: 'Statement' },
-        { iri: 'sorg:TechArticle', label: 'TechArticle' },
-        { iri: 'sorg:TVSeason', label: 'TVSeason' },
-        { iri: 'sorg:TVSeries', label: 'TVSeries' },
-        { iri: 'sorg:Thesis', label: 'Thesis' },
-        { iri: 'sorg:VisualArtwork', label: 'VisualArtwork' },
-        { iri: 'sorg:WebContent', label: 'WebContent' },
-        { iri: 'sorg:WebPage', label: 'WebPage' },
-        { iri: 'sorg:WebPageElement', label: 'WebPageElement' },
-        { iri: 'sorg:Website', label: 'Website' },
-    ];
 
     // Possible as:object
     let objectId : string = "";
@@ -260,7 +128,7 @@
     }
 
     function handleReset() {
-        inbox = inboxInit;
+        inbox = inboxInit ?? "";
     }
 
     const playWhoosh = () => {
@@ -422,50 +290,10 @@
 
 <form on:submit|preventDefault={handleSubmit}>
     <h3>To</h3>
-    <div class="mb-3">
-        <label for="notifTargetId" class="form-label">Id</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="notifTargetId" 
-            placeholder="e.g. A target URI"
-            bind:value={targetId} 
-            required
-        />
-    </div>
-
-    <div class="mb-3">
-        <label for="notifTargetName" class="form-label">Name</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="notifTargetName" 
-            placeholder="e.g. A target name"
-            bind:value={targetName} 
-        />
-    </div>
-
-    <div class="mb-3">
-        <label for="notifInbox" class="form-label">Inbox</label>
-        <input 
-            type="text" 
-            class="form-control" 
-            id="notifId" 
-            placeholder="e.g. An LDN Inbox URL"
-            bind:value={inbox} 
-            required
-        />
-    </div>
-
-    <div class="mb-3">
-        <label for="notifTargetType" class="form-label">Type</label>
-        <i>as:</i>
-        <select bind:value={targetType} required>
-        {#each asObjectTypes as option}
-            <option value={option.iri}>{option.label}</option>
-        {/each}
-        </select> 
-    </div>
+    <To bind:inbox={inbox} 
+        bind:targetId={targetId} 
+        bind:targetName={targetName} 
+        bind:targetType={targetType}/>
 
     {#if notificationType === 'Announce'}
         <h3>What</h3>

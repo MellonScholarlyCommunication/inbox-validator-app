@@ -1,14 +1,8 @@
 import { Readable } from 'readable-stream';
 import { rdfParser } from "rdf-parse";
 import type { Quad } from "@rdfjs/types";
-import { LD_CACHE } from './globals';
+import { LD_CACHE, AS, LDP, POSIX, IANA, IETF } from './globals';
 import N3 from 'n3';
-
-const AS    = 'https://www.w3.org/ns/activitystreams#';
-const LDP   = 'http://www.w3.org/ns/ldp#';
-const POSIX = 'http://www.w3.org/ns/posix/stat#';
-const IANA  = 'http://www.w3.org/ns/iana/media-types/';
-const IETF  = 'http://www.iana.org/assignments/relation/';
 
 export interface Agent {
     id: string;

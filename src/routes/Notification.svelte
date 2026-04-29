@@ -3,7 +3,7 @@
   import type { ComponentType } from 'svelte';
   import { onMount } from 'svelte';
   import { notificationData } from '../store';
-  import { INBOX_URL } from "../globals";
+  import { INBOX_URL , AS } from "../globals";
   import { getNotification , type Notification } from "../inbox";
   import Toggle from "./Helper/Toggle.svelte";
   import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
@@ -13,8 +13,6 @@
   import Reject from './ResponseButtons/Reject.svelte';
   import Flag from './ResponseButtons/Flag.svelte';
   import Announce from './ResponseButtons/Announce.svelte';
-
-  const AS = 'https://www.w3.org/ns/activitystreams#';
 
   export let params: { name?: string } = {};
 
