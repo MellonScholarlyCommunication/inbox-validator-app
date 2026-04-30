@@ -279,6 +279,8 @@
                 }
             }
             else if (notificationType === 'Offer') {
+                payload['type'] = [ 'Offer', addedNotificationType ];
+                
                 payload['object'] = { 
                     id : objectId,
                     type: [ asObjectType , sorgObjectType ]
