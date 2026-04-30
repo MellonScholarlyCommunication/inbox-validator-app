@@ -29,6 +29,10 @@
     />
 </div>
 
+<details>
+    <summary>More details</summary>
+
+
 <div class="mb-3">
     <label for="ietfCiteAs" class="form-label">Cite As</label>
     <input 
@@ -95,7 +99,13 @@
     </select>
 </div>
 
+</details>
+
 <style>
+    details {
+        margin-bottom: 10px;
+    }
+    
     label {
         font-weight: bold;
     }
