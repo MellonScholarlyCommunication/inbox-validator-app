@@ -1,137 +1,170 @@
 <script lang="ts">
+    import { get } from 'svelte/store'; 
+    import { createEventDispatcher } from 'svelte';
     import { notificationData, defaultActor, defaultOrigin } from '../../store';
-    import { get } from 'svelte/store'; // Import store getter
     import { 
         type Notification,
         type PageObject, 
         genUUID,
         sendNotification } from '../../inbox';
-    import { createEventDispatcher } from 'svelte';
     import whooshUrl from '../../assets/woosh.mp3';
     import { 
         AS, COAR_NOTIFY, SORG, 
-        announceTypes, asObjectTypes, sorgObjectTypes
+        announceTypes
     } from '../../globals';
     import To from './SenderParts/To.svelte';
     import ItemObject from './SenderParts/ItemObject.svelte';
     import RelationshipObject from './SenderParts/RelationshipObject.svelte';
     import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
    
-    export let notificationType = 'Accept';
-
-    const dispatch = createEventDispatcher();
-
-    // Check if we allow tentatives...
-    let tentativeFlag = notificationType === 'Accept' ||
-                        notificationType === 'Reject' ? true : false;
-                        
-    // Tentative fields
-    let isTentative = false;
-    let summary = "";
+    export let notificationType : string;
 
     // Read in the notification
     let notification : Notification = get(notificationData) as Notification;
 
-    // Find out the right inbox to send notifications to...
-    const inboxInit : string | undefined = notification.object?.origin?.inbox ?
-            notification.object?.origin?.inbox :
-            notification.object?.actor?.inbox;
+    // Create custom changeTab events for this component (see later in this document)
+    const dispatch = createEventDispatcher();
 
-    let inbox: string = inboxInit ?? "";
+    let tentativeFlag : boolean;
+    let isTentative : boolean;
+    let summary : string;
+    
+    let inbox : string;
 
-    // Possible announce types
-    let addedNotificationType: string = '';
+    let addedNotificationType : string;
+    let asObjectType : string;
+    let sorgObjectType : string;
 
-    if (notification.object?.type?.includes(`${COAR_NOTIFY}ReviewAction`)) {
-        addedNotificationType = 'coar-notify:ReviewAction';
-    }
-    else if (notification.object?.type?.includes(`${COAR_NOTIFY}EndorsementAction`)) {
-        addedNotificationType = 'coar-notify:EndorsementAction';
-    }
-    else {
-        addedNotificationType = '';
-    }
+    let subjectId : string;
+    let relationshipId : string;
+    let objectId : string;
 
-    // Possible AS object type
-    let asObjectType: string = "Page";
+    let ietfCiteAs : string;
 
-    if (addedNotificationType === 'coar-notify:RelationshipAction') {
-        asObjectType = 'Relationship';
-    }
+    let contextId : string;
+    let contextIetfCiteAs : string;
+    let contextAsType : string;
+    let contextSorgType : string;
+    let contextItemId : string;
+    let contextItemMediaType : string;
+    let contextItemAsType : string;
+    let contextItemSorgType : string;
 
-    // Possible sorg object type
-    let sorgObjectType = 'sorg:WebPage';
+    let targetId : string;
+    let targetName : string;
+    let targetType : string;
 
-    // Possible as:object
-    let objectId : string = "";
+    initForm();
 
-    // Possible as:relationship
-    let relationshipId : string = "";
+    function initForm() {
+        // Check if we allow tentatives...
+        tentativeFlag = notificationType === 'Accept' ||
+                        notificationType === 'Reject' ? true : false;
+                        
+        // Tentative fields
+        isTentative = false;
+        summary = "";
 
-    // Possible as:subject
-    let subjectId : string = "";
+        // Find out the right inbox to send notifications to...
+        const inboxInit : string | undefined = notification.object?.origin?.inbox ?
+                notification.object?.origin?.inbox :
+                notification.object?.actor?.inbox;
 
-    // Possible ietf:cite-as
-    let ietfCiteAs : string = "";
+        inbox = inboxInit ?? "";
 
-    // Possible context
-    let contextId : string = "";
-    let contextIetfCiteAs : string = "";
-    let contextAsType : string = "Page";
-    let contextSorgType : string = "AboutPage";
-    let contextItemId : string = "";
-    let contextItemMediaType : string = "";
-    let contextItemAsType : string = "";
-    let contextItemSorgType : string = "";
-    $: contextItemRequired = contextItemId.trim() !== '';
-
-    // Possible target
-    let targetId : string = notification.object?.target?.id ?? "";
-    let targetName : string = notification.object?.target?.name ?? "" ;
-    let targetType : string = notification.object?.target?.type.replace(AS,"") ?? "";
-
-    if (notification.object?.object) {
-        const obj = notification.object.object;
-        if (obj.id) {
-            contextId = obj.id;
+        // Possible announce types
+        if (notification.object?.type?.includes(`${COAR_NOTIFY}ReviewAction`)) {
+            addedNotificationType = 'coar-notify:ReviewAction';
         }
-        if ( (obj as PageObject).citeAs ) {
-            contextIetfCiteAs = (obj as PageObject).citeAs!;
+        else if (notification.object?.type?.includes(`${COAR_NOTIFY}EndorsementAction`)) {
+            addedNotificationType = 'coar-notify:EndorsementAction';
         }
-        if (obj.type && obj.type.some( item => item.startsWith(AS))) {
-            const item = obj.type.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
-            if (item) {
-                contextAsType = item;
+        else {
+            addedNotificationType = '';
+        }
+
+        // Possible AS object type
+        asObjectType = "Page";
+
+        // Set the AS objec type to 'Relationship' when we respond with a coar-notify:RelationshipAction
+        if (addedNotificationType === 'coar-notify:RelationshipAction') {
+            asObjectType = 'Relationship';
+        }
+
+        // Possible sorg object type
+        sorgObjectType = 'sorg:WebPage';
+
+        // Possible as:subject
+        subjectId = "";
+
+        // Possible as:relationship
+        relationshipId = "";
+
+        // Possible as:object
+        objectId = "";
+
+        // Possible ietf:cite-as
+        ietfCiteAs = "";
+
+        // Possible context
+        contextId = "";
+        contextIetfCiteAs = "";
+        contextAsType = "Page";
+        contextSorgType = "sorg:AboutPage";
+        contextItemId = "";
+        contextItemMediaType = "";
+        contextItemAsType = "Page";
+        contextItemSorgType = "sorg:WebPage";
+
+        // Set the context fields if we create a response based on an existing object
+        if (notification.object?.object) {
+            const obj = notification.object.object;
+            if (obj.id) {
+                contextId = obj.id;
+            }
+            if ( (obj as PageObject).citeAs ) {
+                contextIetfCiteAs = (obj as PageObject).citeAs!;
+            }
+            if (obj.type && obj.type.some( item => item.startsWith(AS))) {
+                const item = obj.type.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
+                if (item) {
+                    contextAsType = item;
+                }
+            }
+            if (obj.type && obj.type.some( item => item.startsWith(SORG))) {
+                const item = obj.type.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
+                if (item) {
+                    contextSorgType = item;
+                }
+            }
+            if ( (obj as PageObject).item?.id ) {
+                contextItemId = (obj as PageObject).item?.id!;
+            }
+            if ( (obj as PageObject).item?.mediaType ) {
+                contextItemMediaType = (obj as PageObject).item?.mediaType!;
+            }
+            if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(AS))) {
+                const item = (obj as PageObject).item?.type?.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
+                if (item) {
+                    contextItemAsType = item;
+                }
+            }
+            if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(SORG))) {
+                const item = (obj as PageObject).item?.type?.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
+                if (item) {
+                    contextItemSorgType = item;
+                }
             }
         }
-        if (obj.type && obj.type.some( item => item.startsWith(SORG))) {
-            const item = obj.type.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
-            if (item) {
-                contextSorgType = item;
-            }
-        }
-        if ( (obj as PageObject).item?.id ) {
-            contextItemId = (obj as PageObject).item?.id!;
-        }
-        if ( (obj as PageObject).item?.mediaType ) {
-            contextItemMediaType = (obj as PageObject).item?.mediaType!;
-        }
-        if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(AS))) {
-            const item = (obj as PageObject).item?.type?.find( item => item.startsWith(AS) )?.replaceAll(AS,"");
-            if (item) {
-                contextItemAsType = item;
-            }
-        }
-        if ( (obj as PageObject).item?.type && (obj as PageObject).item?.type?.some( item => item.startsWith(SORG))) {
-            const item = (obj as PageObject).item?.type?.find( item => item.startsWith(SORG) )?.replaceAll(SORG,"sorg:");
-            if (item) {
-                contextItemSorgType = item;
-            }
-        }
+
+        // Possible target
+        targetId   = notification.object?.actor?.id ?? "";
+        targetName = notification.object?.actor?.name ?? "" ;
+        targetType = notification.object?.actor?.type.replace(AS,"") ?? "";
     }
 
     function handleReset() {
-        inbox = inboxInit ?? "";
+        initForm();
     }
 
     const playWhoosh = () => {
@@ -149,7 +182,7 @@
     async function handleSubmit() {
         try {
             if (!inbox) {
-                return;
+                throw new Error('No inbox location set');
             }
 
             let payload : any = {
@@ -161,8 +194,7 @@
                 'type': notificationType,
                 'actor': $defaultActor,
                 'origin': $defaultOrigin,
-                'object': notification.object,
-                'target': notification.object?.actor
+                'object': notification.object
             }
 
             if (targetId.length) {
@@ -173,6 +205,9 @@
                 if (targetName.length) {
                     payload['target']['type'] = targetType;
                 }
+            }
+            else {
+                throw new Error(`No target set?`);
             }
 
             if (notificationType === 'Announce') {
@@ -280,17 +315,6 @@
 </div>
 {/if}
 
-{#if notificationType==="Announce"}
-<div class="mb-3">
-    <label for="notifAddedNotificationType" class="form-label">Announce Type</label>
-    <select bind:value={addedNotificationType}>
-        {#each announceTypes as option}
-        <option value={option.iri}>{option.label}</option>
-        {/each}
-    </select>
-</div>
-{/if}
-
 <form on:submit|preventDefault={handleSubmit}>
     <h3>To</h3>
     <To bind:inbox={inbox} 
@@ -300,6 +324,15 @@
 
     {#if notificationType === 'Announce'}
         <h3>What</h3>
+
+        <div class="mb-3">
+            <label for="notifAddedNotificationType" class="form-label">Announce Type</label>
+            <select bind:value={addedNotificationType}>
+                {#each announceTypes as option}
+                <option value={option.iri}>{option.label}</option>
+                {/each}
+            </select>
+        </div>
 
         {#if addedNotificationType === 'coar-notify:RelationshipAction'}
             <RelationshipObject

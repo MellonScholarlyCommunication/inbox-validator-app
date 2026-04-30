@@ -4,6 +4,10 @@
     export let targetId : string;
     export let targetName : string;
     export let targetType : string;
+
+    if (! targetType || targetType.length == 0) {
+        targetType = "Service";
+    }
 </script>
 
 <div class="mb-3">
@@ -30,6 +34,16 @@
 </div>
 
 <div class="mb-3">
+    <label for="notifTargetType" class="form-label">Type</label>
+    <i>as:</i>
+    <select bind:value={targetType} required>
+        {#each asObjectTypes as option}
+            <option value={option.iri}>{option.label}</option>
+        {/each}
+    </select> 
+</div>
+
+<div class="mb-3">
     <label for="notifInbox" class="form-label">Inbox</label>
     <input 
         type="text" 
@@ -39,16 +53,6 @@
         bind:value={inbox} 
         required
     />
-</div>
-
-<div class="mb-3">
-    <label for="notifTargetType" class="form-label">Type</label>
-    <i>as:</i>
-    <select bind:value={targetType} required>
-        {#each asObjectTypes as option}
-            <option value={option.iri}>{option.label}</option>
-        {/each}
-    </select> 
 </div>
 
 <style>

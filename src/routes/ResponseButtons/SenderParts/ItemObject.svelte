@@ -10,6 +10,10 @@
     export let itemAsType : string;
     export let itemSorgType : string;
 
+    if (! sorgType || sorgType.length == 0) {
+        sorgType = "sorg:AboutPage";
+    }
+
     $: itemRequired = itemId.trim() !== '';
 </script>
 
