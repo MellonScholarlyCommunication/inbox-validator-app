@@ -14,6 +14,8 @@
     } from '../../globals';
     import To from './SenderParts/To.svelte';
     import ItemObject from './SenderParts/ItemObject.svelte';
+    import RelationshipObject from './SenderParts/RelationshipObject.svelte';
+    import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
    
     export let notificationType = 'Accept';
 
@@ -300,75 +302,18 @@
         <h3>What</h3>
 
         {#if addedNotificationType === 'coar-notify:RelationshipAction'}
-        <div class="mb-3">
-            <label for="notifSubject" class="form-label">Subject</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="notifSubject" 
-                bind:value={subjectId}
-                placeholder="e.g. A subject URL"
-                required
-            />
-        </div>
-        <div class="mb-3">
-            <label for="notifRelationship" class="form-label">Relationship</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="notifRelationship" 
-                bind:value={relationshipId}
-                placeholder="e.g. A relationship URI"
-                required
-            />
-        </div>
+            <RelationshipObject
+                bind:subjectId={subjectId}
+                bind:relationshipId={relationshipId}
+                bind:objectId={objectId}/>
+        {:else}
+            <ServiceResultObject
+                bind:objectId={objectId}
+                bind:ietfCiteAs={ietfCiteAs}
+                bind:asObjectType={asObjectType}
+                bind:sorgObjectType={sorgObjectType}/>
         {/if}
  
-        <div class="mb-3">
-            <label for="notifObject" class="form-label">Object</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="notifObject"
-                bind:value={objectId}
-                placeholder="e.g. A resource URL"
-                required
-            />
-        </div>
-
-        {#if addedNotificationType === 'coar-notify:EndorsementAction' || addedNotificationType === 'coar-notify:ReviewAction'}
-        <div class="mb-3">
-            <label for="notifIETFCiteAs" class="form-label">Cite As</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="notifIETFCiteAs" 
-                bind:value={ietfCiteAs}
-                placeholder="e.g. A citable resource URL"
-            />
-        </div>
-        {/if}
-
-        <div class="mb-3">
-            <label for="notifAsObjectType" class="form-label">Type</label>
-            {#if addedNotificationType === 'coar-notify:RelationshipAction'}
-            <i>as:Relationship</i>
-            {:else}
-            <i>as:</i>
-            <select bind:value={asObjectType} required>
-            {#each asObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-            <i>sorg:</i>
-            <select bind:value={sorgObjectType} required>
-            {#each sorgObjectTypes as option}
-                <option value={option.iri}>{option.label}</option>
-            {/each}
-            </select>
-            {/if}
-        </div>
-
         <h3>Context</h3>
 
         <ItemObject 
