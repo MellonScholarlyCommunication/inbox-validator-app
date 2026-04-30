@@ -483,6 +483,11 @@ export const announceTypes : Category[] = [
   { iri: `coar-notify:ReviewAction`, label: 'ReviewAction' },
 ];
 
+export const offerTypes : Category[] = [
+  { iri: `coar-notify:EndorsementAction`, label: 'EndorsementAction' },
+  { iri: `coar-notify:ReviewAction`, label: 'ReviewAction' },
+];
+
 export const asObjectTypes : Category[] = [
   { iri: 'Activity', label: 'Activity' },
   { iri: 'Application', label: 'Application' },

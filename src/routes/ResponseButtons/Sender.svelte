@@ -10,7 +10,7 @@
     import whooshUrl from '../../assets/woosh.mp3';
     import { 
         AS, COAR_NOTIFY, SORG, 
-        announceTypes
+        announceTypes, offerTypes
     } from '../../globals';
     import To from './SenderParts/To.svelte';
     import ItemObject from './SenderParts/ItemObject.svelte';
@@ -40,6 +40,11 @@
     let objectId : string;
 
     let ietfCiteAs : string;
+
+    let objectItemId : string;
+    let objectItemMediaType : string;
+    let objectItemAsType : string;
+    let objectItemSorgType : string;
 
     let contextId : string;
     let contextIetfCiteAs : string;
@@ -106,13 +111,19 @@
         // Possible ietf:cite-as
         ietfCiteAs = "";
 
+        // Possible object item
+        objectItemId = "";
+        objectItemMediaType = "application/pdf";
+        objectItemAsType = "Page";
+        objectItemSorgType = "sorg:WebPage";
+
         // Possible context
         contextId = "";
         contextIetfCiteAs = "";
         contextAsType = "Page";
         contextSorgType = "sorg:AboutPage";
         contextItemId = "";
-        contextItemMediaType = "";
+        contextItemMediaType = "application/pdf";
         contextItemAsType = "Page";
         contextItemSorgType = "sorg:WebPage";
 
@@ -267,6 +278,22 @@
                     }
                 }
             }
+            else if (notificationType === 'Offer') {
+                payload['object'] = { 
+                    id : objectId,
+                    type: [ asObjectType , sorgObjectType ]
+                };
+
+                if (ietfCiteAs.length) {
+                    payload['object']['ietf:cite-as'] = ietfCiteAs;
+                }
+
+                payload['object']['ietf:item'] = {
+                    id: objectItemId ,
+                    mediaType: objectItemMediaType ,
+                    type: [ objectItemAsType , objectItemSorgType ]
+                };
+            }
 
             if (isTentative) {
                 payload['type'] = 'Tentative' + notificationType;
@@ -349,7 +376,8 @@
  
         <h3>Context</h3>
 
-        <ItemObject 
+        <ItemObject
+            itemRequired={false}
             bind:id={contextId} 
             bind:ietfCiteAs={contextIetfCiteAs}
             bind:asType={contextAsType}
@@ -359,6 +387,31 @@
             bind:itemAsType={contextItemAsType}
             bind:itemSorgType={contextItemSorgType}/>
     {/if}
+
+    {#if notificationType === 'Offer'}
+        <h3>What</h3>
+
+        <div class="mb-3">
+            <label for="notifAddedNotificationType" class="form-label">Offer Type</label>
+            <select bind:value={addedNotificationType} required>
+                {#each offerTypes as option}
+                <option value={option.iri}>{option.label}</option>
+                {/each}
+            </select>
+        </div>
+
+        <ItemObject 
+            itemRequired={true}
+            bind:id={objectId} 
+            bind:ietfCiteAs={ietfCiteAs}
+            bind:asType={asObjectType}
+            bind:sorgType={sorgObjectType}
+            bind:itemId={objectItemId}
+            bind:itemMediaType={objectItemMediaType}
+            bind:itemAsType={objectItemAsType}
+            bind:itemSorgType={objectItemSorgType}/>
+    {/if}
+
 
     {#if isTentative || notificationType === 'Flag'}
         <div class="mb-3">

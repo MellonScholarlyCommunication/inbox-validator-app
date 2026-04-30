@@ -1,6 +1,7 @@
 <script lang="ts">
     import { asObjectTypes, sorgObjectTypes } from "../../../globals";
 
+    export let itemRequired : boolean;
     export let id : string;
     export let ietfCiteAs : string;
     export let asType : string;
@@ -10,11 +11,7 @@
     export let itemAsType : string;
     export let itemSorgType : string;
 
-    if (! sorgType || sorgType.length == 0) {
-        sorgType = "sorg:AboutPage";
-    }
-
-    $: itemRequired = itemId.trim() !== '';
+    $: thisItemRequired = itemRequired || itemId.trim() !== '';
 </script>
 
 <div class="mb-3">
@@ -29,10 +26,7 @@
     />
 </div>
 
-<details>
-    <summary>More details</summary>
-
-
+{#if thisItemRequired && itemId.length === 0}
 <div class="mb-3">
     <label for="ietfCiteAs" class="form-label">Cite As</label>
     <input 
@@ -67,6 +61,7 @@
         class="form-control" 
         id="objectItemId" 
         bind:value={itemId}
+        required={thisItemRequired}
         placeholder="e.g. A resource item URL"
     />
 </div>
@@ -78,7 +73,7 @@
         class="form-control" 
         id="objectItemMediaType" 
         bind:value={itemMediaType}
-        required={itemRequired}
+        required={thisItemRequired}
         placeholder="e.g. A media type for the item"
     />
 </div>
@@ -86,20 +81,91 @@
 <div class="mb-3">
     <label for="objectItemType" class="form-label">Type</label>
     <i>as:</i>
-    <select bind:value={itemAsType} required={itemRequired}>
+    <select bind:value={itemAsType} required={thisItemRequired}>
         {#each asObjectTypes as option}
             <option value={option.iri}>{option.label}</option>
         {/each}
     </select>
     <i>sorg:</i>
-    <select bind:value={itemSorgType} required={itemRequired}>
+    <select bind:value={itemSorgType} required={thisItemRequired}>
         {#each sorgObjectTypes as option}
             <option value={option.iri}>{option.label}</option>
         {/each}
     </select>
 </div>
+{:else}
+<details>
+    <summary>More details</summary>
+
+    <div class="mb-3">
+        <label for="ietfCiteAs" class="form-label">Cite As</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="ietfCiteAs" 
+            bind:value={ietfCiteAs}
+            placeholder="e.g. A citable resource URL"
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="contextType" class="form-label">Type</label>
+        <i>as:</i>
+        <select bind:value={asType}>
+            {#each asObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+        </select>
+        <i>sorg:</i>
+        <select bind:value={sorgType}>
+            {#each sorgObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="objectItemId" class="form-label">Item (content resource)</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="objectItemId" 
+            bind:value={itemId}
+            required={thisItemRequired}
+            placeholder="e.g. A resource item URL"
+        />
+    </div>
+            
+    <div class="mb-3">
+        <label for="objectItemMediaType" class="form-label">Media Type</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            id="objectItemMediaType" 
+            bind:value={itemMediaType}
+            required={thisItemRequired}
+            placeholder="e.g. A media type for the item"
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="objectItemType" class="form-label">Type</label>
+        <i>as:</i>
+        <select bind:value={itemAsType} required={thisItemRequired}>
+            {#each asObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+        </select>
+        <i>sorg:</i>
+        <select bind:value={itemSorgType} required={thisItemRequired}>
+            {#each sorgObjectTypes as option}
+                <option value={option.iri}>{option.label}</option>
+            {/each}
+        </select>
+    </div>
 
 </details>
+{/if}
 
 <style>
     details {

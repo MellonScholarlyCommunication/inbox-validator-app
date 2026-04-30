@@ -4,10 +4,6 @@
     export let targetId : string;
     export let targetName : string;
     export let targetType : string;
-
-    if (! targetType || targetType.length == 0) {
-        targetType = "Service";
-    }
 </script>
 
 <div class="mb-3">
