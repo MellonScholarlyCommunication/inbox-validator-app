@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.gitignore
+.DS_Store
+.env
+.env.*
+inbox/*.jsonld
+inbox/[0-9a-f]*/
+ecosystem.config.cjs-sample
+README*.md

@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --port 5050",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "inbox": "npx ldn-inbox-server start-server --port 5051"
+    "inbox": "npx ldn-inbox-server start-server --port 5051",
+    "docker:inbox": "docker compose up --force-recreate inbox"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.0",

@@ -1,0 +1,5 @@
+FROM node:20-alpine
+WORKDIR /app
+RUN npm install --omit=dev ldn-inbox-server@^1.8.7
+EXPOSE 5051
+CMD ["npx", "ldn-inbox-server", "start-server", "--port", "5051"]

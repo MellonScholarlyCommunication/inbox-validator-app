@@ -1,0 +1,26 @@
+services:
+  inbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.inbox
+    working_dir: /data
+    env_file:
+      - .env
+    environment:
+      LDN_SERVER_HOST: 0.0.0.0
+    volumes:
+      - ./conf:/data/conf
+      - ./inbox:/data/inbox
+    ports:
+      - "5051:5051"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8080:80"
+    depends_on:
+      - inbox
+    restart: unless-stopped
