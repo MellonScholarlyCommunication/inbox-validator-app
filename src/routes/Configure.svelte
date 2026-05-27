@@ -127,7 +127,7 @@
             type="text" 
             class="form-control" 
             id="actorName"
-            placeholder="e.g. Location of your inbox"
+            placeholder="e.g. Location of your personal inbox"
             bind:value={$defaultActor.inbox} 
         />
     </div>
