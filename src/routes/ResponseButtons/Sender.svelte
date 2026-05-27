@@ -16,6 +16,7 @@
     import ItemObject from './SenderParts/ItemObject.svelte';
     import RelationshipObject from './SenderParts/RelationshipObject.svelte';
     import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
+    import InReplyTo from './SenderParts/InReplyTo.svelte';
    
     export let notificationType : string;
 
@@ -54,6 +55,8 @@
     let contextItemMediaType : string;
     let contextItemAsType : string;
     let contextItemSorgType : string;
+
+    let inReplyTo : string;
 
     let targetId : string;
     let targetName : string;
@@ -130,6 +133,11 @@
         // Set the context fields if we create a response based on an existing object
         if (notification.object?.object) {
             const obj = notification.object.object;
+
+            if (notification.object.id) {
+                inReplyTo = notification.object.id;
+            }
+
             if (obj.id) {
                 contextId = obj.id;
             }
@@ -206,6 +214,10 @@
                 'actor': $defaultActor,
                 'origin': $defaultOrigin,
                 'object': notification.object
+            }
+
+            if (inReplyTo) {
+                payload['inReplyTo'] = inReplyTo;
             }
 
             if (targetId.length) {
@@ -388,6 +400,14 @@
             bind:itemMediaType={contextItemMediaType}
             bind:itemAsType={contextItemAsType}
             bind:itemSorgType={contextItemSorgType}/>
+        
+        {#if addedNotificationType === 'coar-notify:RelationshipAction'} 
+            // Nothing to do here. No inReplyTo for RelationshipAction
+        {:else}
+            <h3>In Reply To</h3>
+
+            <InReplyTo bind:inReplyTo={inReplyTo}/>
+        {/if}
     {/if}
 
     {#if notificationType === 'Offer'}
