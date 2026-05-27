@@ -16,6 +16,7 @@
     import ItemObject from './SenderParts/ItemObject.svelte';
     import RelationshipObject from './SenderParts/RelationshipObject.svelte';
     import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
+    import PreviousNotification from './SenderParts/PreviousNotification.svelte';
    
     export let notificationType : string;
 
@@ -56,6 +57,8 @@
     let contextItemSorgType : string;
 
     let inReplyTo : string;
+
+    let previousNotification : Notification;
 
     let targetId : string;
     let targetName : string;
@@ -311,6 +314,10 @@
                     type: [ objectItemAsType , objectItemSorgType ]
                 };
             }
+            else if (notificationType === 'Undo') {
+                payload['object'] = JSON.parse(previousNotification.data);
+                delete payload['object']['@context'];
+            }
 
             if (isTentative) {
                 payload['type'] = 'Tentative' + notificationType;
@@ -444,6 +451,13 @@
 
     {#if notificationType === 'Undo'}
         <h3>Previous Offer</h3>
+
+        <PreviousNotification
+            bind:notification={previousNotification}
+            bind:targetInbox={inbox}
+            bind:targetId={targetId}
+            bind:targetName={targetName}
+            bind:targetType={targetType}/>
     {/if}
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
