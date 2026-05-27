@@ -3,7 +3,8 @@
   import type { ComponentType } from 'svelte';
   import { onMount } from 'svelte';
   import { notificationData } from '../store';
-  import { INBOX_URL , AS } from "../globals";
+  import { defaultOptions} from "../store";
+  import { AS } from "../globals";
   import { getNotification , type Notification } from "../inbox";
   import Toggle from "./Helper/Toggle.svelte";
   import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
@@ -19,8 +20,13 @@
   let showToast = false;
   let toastMessage = "";
   let viewSource = false;
-  let inbox = INBOX_URL;
-  let notificationUrl = inbox + params.name;
+  let inbox : string;
+  let notificationUrl : string;
+  
+  if (defaultOptions) {
+    inbox = $defaultOptions.inboxUrl;
+    notificationUrl = inbox + params.name;
+  }
 
   interface Tab {
       label: string;
