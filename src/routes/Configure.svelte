@@ -27,12 +27,60 @@
 </nav>
 
 <p>
-    General configuration settings for sending notifications.
+    General configuration settings for reading, sending and receiving notifications.
 </p>
 
 {#if $defaultActor && $defaultOrigin && $defaultOptions}
 <form on:submit|preventDefault={handleSubmit}>
+    <div id="myOptions">
+        <div class="mb-3">
+            <label for="inboxUrl" class="form-label">Main inbox</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inboxUrl"
+                placeholder="e.g. Location of the main inbox"
+                aria-describedby="inboxUrlHelp"
+                bind:value={$defaultOptions.inboxUrl}
+            />
+            <div id="inboxUrlHelp" class="form-text">
+                The main inbox that will be used to by this application.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="validationUrl" class="form-label">Validator endpoint</label>
+            <input
+                type="text"
+                class="form-control"
+                id="validationUrl"
+                placeholder=""
+                aria-describedby="validationUrlHelp"
+                bind:value={$defaultOptions.validatorUrl}
+            />
+            <div id="validationUrlHelp" class="form-text">
+                The location of the SHACL/JSON-Schema validator REST API.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="preferredTargetInbox" class="form-label">Default reply inbox</label>
+            <input
+                type="text"
+                class="form-control"
+                id="preferredTargetInbox"
+                placeholder="e.g. Location a test inbox"
+                aria-describedby="preferredTargetInboxHelp"
+                bind:value={$defaultOptions.preferredTargetInbox}
+            />
+            <div id="preferredTargetInboxHelp" class="form-text">
+                Overrides the inbox discovered for the recipient, sending all replies here instead. Useful for testing against a local inbox.
+            </div>
+        </div>
+    </div>
+
     <h5>Your Actor Identity</h5>
+    <small>Set the your identity when sending notifications.</small>
     <div id="actorConfig">
     <div class="mb-3">
         <label for="actorId" class="form-label">Id</label>
@@ -87,6 +135,7 @@
     </div>
 
     <h5>Your Origin Identity</h5>
+    <small>Set the your origin identity when sending notifications. The origin is the program or service that sends and receives notifications.</small>
 
     <div id="originConfig">
     <div class="mb-3">
@@ -139,55 +188,6 @@
         />
     </div>
 
-    </div>
-
-    <h5>Extra Options</h5>
-
-    <div id="extraOptions">
-        <div class="mb-3">
-            <label for="inboxUrl" class="form-label">Default inbox</label>
-            <input
-                type="text"
-                class="form-control"
-                id="inboxUrl"
-                placeholder="e.g. Location of the main inbox"
-                aria-describedby="inboxUrlHelp"
-                bind:value={$defaultOptions.inboxUrl}
-            />
-            <div id="inboxUrlHelp" class="form-text">
-                The main inbox that will be used to by this application.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="validationUrl" class="form-label">Validator endpoint</label>
-            <input
-                type="text"
-                class="form-control"
-                id="validationUrl"
-                placeholder=""
-                aria-describedby="validationUrlHelp"
-                bind:value={$defaultOptions.validatorUrl}
-            />
-            <div id="validationUrlHelp" class="form-text">
-                The location of the SHACL/JSON-Schema validator REST API.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="preferredTargetInbox" class="form-label">Default reply inbox</label>
-            <input
-                type="text"
-                class="form-control"
-                id="preferredTargetInbox"
-                placeholder="e.g. Location a test inbox"
-                aria-describedby="preferredTargetInboxHelp"
-                bind:value={$defaultOptions.preferredTargetInbox}
-            />
-            <div id="preferredTargetInboxHelp" class="form-text">
-                Overrides the inbox discovered for the recipient, sending all replies here instead. Useful for testing against a local inbox.
-            </div>
-        </div>
     </div>
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">

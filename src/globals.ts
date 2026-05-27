@@ -9,7 +9,7 @@ export const THIS_ACTOR : Agent = {
     inbox: undefined
 };
 export const THIS_ORIGIN : any = {
-    "id": "http://lib.ugent.be/inbox-validator-app",
+    "id": "https://github.com/MellonScholarlyCommunication/inbox-validator-app",
     "name": "INBOX VIEWER",
     "type": "https://www.w3.org/ns/activitystreams#Service",
     "inbox": INBOX_URL
