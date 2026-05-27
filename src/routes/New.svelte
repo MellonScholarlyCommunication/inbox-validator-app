@@ -19,7 +19,7 @@
 
     const tabs : Tab[] = [
       { label: 'Offer', component: Offer, class: 'btn btn-success' },
-      { label: 'Undo', component: Undo, class: 'btn btn-warning'},
+     // { label: 'Undo', component: Undo, class: 'btn btn-warning'},
       { label: 'Announce', component: Announce , class: 'btn btn-success' }
     ];
 
