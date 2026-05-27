@@ -1,10 +1,14 @@
 <script lang="ts">
   import 'bootstrap/dist/css/bootstrap.min.css';
   import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-  import { INBOX_URL } from "../globals";
+  import { defaultOptions} from "../store";
 	import { listInbox } from "../inbox";
 
-	let inbox = INBOX_URL;
+  let inbox : string;
+
+  if ($defaultOptions) {
+	  inbox = $defaultOptions.inboxUrl;
+  }
 </script>
 
 {#await listInbox(inbox)}
@@ -52,6 +56,7 @@
 </table>
 {:catch error}
   <p class="error">Failed to load {inbox}</p>
+  <p>{error}</p>
 {/await}
 
 <style>

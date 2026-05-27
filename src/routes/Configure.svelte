@@ -141,16 +141,46 @@
 
     </div>
 
-    <h5>Debug Options</h5>
+    <h5>Extra Options</h5>
 
-    <div id="debugOptions">
+    <div id="extraOptions">
+        <div class="mb-3">
+            <label for="inboxUrl" class="form-label">Default inbox</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inboxUrl"
+                placeholder="e.g. Location of the main inbox"
+                aria-describedby="inboxUrlHelp"
+                bind:value={$defaultOptions.inboxUrl}
+            />
+            <div id="inboxUrlHelp" class="form-text">
+                The main inbox that will be used to by this application.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="validationUrl" class="form-label">Validator endpoint</label>
+            <input
+                type="text"
+                class="form-control"
+                id="validationUrl"
+                placeholder=""
+                aria-describedby="validationUrlHelp"
+                bind:value={$defaultOptions.validatorUrl}
+            />
+            <div id="validationUrlHelp" class="form-text">
+                The location of the SHACL/JSON-Schema validator REST API.
+            </div>
+        </div>
+
         <div class="mb-3">
             <label for="preferredTargetInbox" class="form-label">Default reply inbox</label>
             <input
                 type="text"
                 class="form-control"
                 id="preferredTargetInbox"
-                placeholder="e.g. Location of your inbox"
+                placeholder="e.g. Location a test inbox"
                 aria-describedby="preferredTargetInboxHelp"
                 bind:value={$defaultOptions.preferredTargetInbox}
             />

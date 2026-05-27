@@ -1,6 +1,6 @@
 import { type Agent } from "./inbox";
-export const INBOX_URL = "http://localhost:5051/inbox/";
-//export const INBOX_URL = "https://patrickhochstenbach.net/test/";
+//export const INBOX_URL = "http://localhost:5051/inbox/";
+export const INBOX_URL = "https://patrickhochstenbach.net/";
 export const VALIDATOR_URL =  'http://localhost:3000/validate';
 export const THIS_ACTOR : Agent = {
     id: "http://generic.service.org",
@@ -15,6 +15,8 @@ export const THIS_ORIGIN : any = {
     "inbox": INBOX_URL
 };
 export const THIS_OPTIONS : any = {
+    "inboxUrl": INBOX_URL,
+    "validatorUrl": VALIDATOR_URL,
     "preferredTargetInbox": null
 };
 export const LD_CACHE : Record<string,any> = {

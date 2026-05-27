@@ -16,6 +16,8 @@ function createPersistentStore<T>(key: string, startValue: T) {
 } 
 
 interface FormDefaults {
+    inboxUrl: string;
+    validatorUrl: string;
     preferredTargetInbox: string | null;
 }
 
