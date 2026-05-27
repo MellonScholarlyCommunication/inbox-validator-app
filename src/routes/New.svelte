@@ -1,9 +1,10 @@
 <script lang="ts">
     import { link } from 'svelte-spa-router';
     import type { ComponentType } from 'svelte';
-    import { notificationData } from '../store';
+    import { notificationData, newNotificationTrigger } from '../store';
     import Announce from './ResponseButtons/Announce.svelte';
     import Offer from './ResponseButtons/Offer.svelte';
+    import Undo from './ResponseButtons/Undo.svelte';
     import { getNewNotification , type Notification } from "../inbox";
     import { onMount } from 'svelte';
 
@@ -18,10 +19,16 @@
 
     const tabs : Tab[] = [
       { label: 'Offer', component: Offer, class: 'btn btn-success' },
+      { label: 'Undo', component: Undo, class: 'btn btn-warning'},
       { label: 'Announce', component: Announce , class: 'btn btn-success' }
     ];
 
     let activeTab : Tab | null = null;
+
+    // Reset the active tab every time the "New Notification" button is pressed,
+    // even when /new is already mounted (push('/new') is then a no-op, so
+    // neither onMount nor the router's location store would fire).
+    $: $newNotificationTrigger, activeTab = null;
 
     onMount(async () => {
       $notificationData = await getNewNotification() as Notification;
@@ -34,21 +41,23 @@
     <a href="/" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>
 </nav>
 
-<div class="tab-container">
-    <nav>
-        {#each tabs as tab}
-        <button 
-            class={tab.class}
-            class:active={activeTab === tab} 
-            on:click={() => activeTab = tab}
-        >
-        {tab.label}
-        </button> 
-        {/each}
-    </nav>
-</div>
+{#if !activeTab}
+  <div class="tab-container">
+      <nav>
+          {#each tabs as tab}
+          <button 
+              class={tab.class}
+              class:active={activeTab === tab} 
+              on:click={() => activeTab = tab}
+          >
+          {tab.label}
+          </button> 
+          {/each}
+      </nav>
+  </div>
+{/if}
 
- <div class="card-body">
+<div class="card-body">
     {#if activeTab}
     <svelte:component 
         this={activeTab.component} 

@@ -2,6 +2,7 @@
 	import Router from "svelte-spa-router";
 	import routes from "./routes";
 	import { push } from 'svelte-spa-router';
+	import { newNotificationTrigger } from "./store";
 </script>
 
 <div class="container py-5">
@@ -15,7 +16,7 @@
 					 <div>
 						<button 
           				class="btn btn-light"
-						on:click={ () => push('/new')} 
+						on:click={ () => { $newNotificationTrigger++; push('/new'); } }
 		  				>New Notification</button>
 						<button 
           				class="btn btn-light"

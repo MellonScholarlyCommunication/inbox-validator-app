@@ -414,8 +414,7 @@
             bind:itemSorgType={objectItemSorgType}/>
     {/if}
 
-
-    {#if isTentative || notificationType === 'Flag'}
+    {#if isTentative || notificationType === 'Flag' || notificationType == 'Undo'}
         <div class="mb-3">
             <label class="form-label" for="summary"><b>Summary</b></label>
             <input 
@@ -426,6 +425,10 @@
                 placeholder="Write a short summary why you {notificationType.toLowerCase()} this notification."
                 required>
         </div> 
+    {/if}
+
+    {#if notificationType === 'Undo'}
+        <h3>Previous Offer</h3>
     {/if}
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">

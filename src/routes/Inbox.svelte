@@ -2,7 +2,7 @@
   import 'bootstrap/dist/css/bootstrap.min.css';
   import 'bootstrap/dist/js/bootstrap.bundle.min.js';
   import { INBOX_URL } from "../globals";
-	import { listInbox , type Member } from "../inbox";
+	import { listInbox } from "../inbox";
 
 	let inbox = INBOX_URL;
 </script>
