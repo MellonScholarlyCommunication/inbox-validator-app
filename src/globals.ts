@@ -14,6 +14,9 @@ export const THIS_ORIGIN : any = {
     "type": "https://www.w3.org/ns/activitystreams#Service",
     "inbox": INBOX_URL
 };
+export const THIS_OPTIONS : any = {
+    "preferredTargetInbox": null
+};
 export const LD_CACHE : Record<string,any> = {
   "https://www.w3.org/ns/activitystreams": {
     "@context": {

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { get } from 'svelte/store'; 
     import { createEventDispatcher } from 'svelte';
-    import { notificationData, defaultActor, defaultOrigin } from '../../store';
+    import { notificationData, defaultActor, defaultOrigin, defaultOptions } from '../../store';
     import { 
         type Notification,
         type PageObject, 
@@ -79,6 +79,10 @@
                 notification.object?.actor?.inbox;
 
         inbox = inboxInit ?? "";
+
+        if ($defaultOptions.preferredTargetInbox) {
+            inbox = $defaultOptions.preferredTargetInbox;
+        }
 
         // Possible announce types
         if (notification.object?.type?.includes(`${COAR_NOTIFY}ReviewAction`)) {

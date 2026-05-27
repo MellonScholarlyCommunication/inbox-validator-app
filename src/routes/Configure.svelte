@@ -1,6 +1,6 @@
 <script lang="ts">
     import { link } from 'svelte-spa-router';
-    import { defaultActor, defaultOrigin } from '../store';
+    import { defaultActor, defaultOrigin, defaultOptions } from '../store';
     import { AS } from '../globals';
 
     // Possible actor types (limited for now)...
@@ -30,7 +30,7 @@
     General configuration settings for sending notifications.
 </p>
 
-{#if $defaultActor && $defaultOrigin}
+{#if $defaultActor && $defaultOrigin && $defaultOptions}
 <form on:submit|preventDefault={handleSubmit}>
     <h5>Your Actor Identity</h5>
     <div id="actorConfig">
@@ -87,6 +87,7 @@
     </div>
 
     <h5>Your Origin Identity</h5>
+
     <div id="originConfig">
     <div class="mb-3">
         <label for="originId" class="form-label">Id</label>
@@ -138,6 +139,25 @@
         />
     </div>
 
+    </div>
+
+    <h5>Debug Options</h5>
+
+    <div id="debugOptions">
+        <div class="mb-3">
+            <label for="preferredTargetInbox" class="form-label">Default reply inbox</label>
+            <input
+                type="text"
+                class="form-control"
+                id="preferredTargetInbox"
+                placeholder="e.g. Location of your inbox"
+                aria-describedby="preferredTargetInboxHelp"
+                bind:value={$defaultOptions.preferredTargetInbox}
+            />
+            <div id="preferredTargetInboxHelp" class="form-text">
+                Overrides the inbox discovered for the recipient, sending all replies here instead. Useful for testing against a local inbox.
+            </div>
+        </div>
     </div>
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
