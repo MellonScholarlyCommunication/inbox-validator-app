@@ -83,14 +83,23 @@
     {#if object.actor}
         <dt>From</dt>
         <dd><Agent actor={object.actor}/></dd>
+    {:else}
+        <dt>From</dt>
+        <dd>⚠️ Unknown</dd>
     {/if}
     {#if object.origin}
         <dt>Via</dt>
         <dd><Agent actor={object.origin}/></dd>
+    {:else}
+        <dt>From</dt>
+        <dd>⚠️ Unknown</dd>
     {/if}
     {#if object.target}
         <dt>To</dt>
         <dd><Agent actor={object.target}/></dd>
+    {:else}
+        <dt>From</dt>
+        <dd>⚠️ Unknown</dd>
     {/if}
     {#if object.inReplyTo} 
         <dt>InReplyTo</dt>

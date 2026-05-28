@@ -65,7 +65,11 @@
 
 {#if $notificationData} 
     <div class="card-body">
-      <h3>Notification {$notificationData.object?.id}</h3>
+      {#if $notificationData.object?.id}
+        <h3>Notification {$notificationData.object?.id}</h3>
+      {:else}
+        <h3>Invalid Notification</h3>
+      {/if}
       <h6>{inbox}{params.name}</h6>
       <Toggle bind:enabled={viewSource}/>
       {#if viewSource}

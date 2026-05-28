@@ -5,6 +5,7 @@
     import Announce from './ResponseButtons/Announce.svelte';
     import Offer from './ResponseButtons/Offer.svelte';
     import Undo from './ResponseButtons/Undo.svelte';
+    import Generic from './ResponseButtons/Generic.svelte';
     import { getNewNotification , type Notification } from "../inbox";
     import { onMount } from 'svelte';
 
@@ -18,9 +19,10 @@
     }
 
     const tabs : Tab[] = [
-      { label: 'Offer', component: Offer, class: 'btn btn-success' },
+      { label: 'Offer', component: Offer, class: 'btn btn-primary' },
       { label: 'Undo', component: Undo, class: 'btn btn-warning'},
-      { label: 'Announce', component: Announce , class: 'btn btn-success' }
+      { label: 'Announce', component: Announce , class: 'btn btn-success' },
+      { label: 'Generic', component: Generic, class: 'btn btn-danger' },
     ];
 
     let activeTab : Tab | null = null;

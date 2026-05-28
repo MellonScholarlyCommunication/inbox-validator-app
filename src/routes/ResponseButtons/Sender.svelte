@@ -17,6 +17,7 @@
     import RelationshipObject from './SenderParts/RelationshipObject.svelte';
     import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
     import PreviousNotification from './SenderParts/PreviousNotification.svelte';
+    import GenericPayload from './SenderParts/GenericPayload.svelte';
    
     export let notificationType : string;
 
@@ -59,6 +60,7 @@
     let inReplyTo : string;
 
     let previousNotification : Notification;
+    let genericNotification : any;
 
     let targetId : string;
     let targetName : string;
@@ -235,9 +237,6 @@
                     payload['target']['type'] = targetType;
                 }
             }
-            else {
-                throw new Error(`No target set?`);
-            }
 
             if (notificationType === 'Announce') {
                 if (addedNotificationType === 'coar-notify:RelationshipAction') {
@@ -327,6 +326,21 @@
                 payload['summary'] = summary;
             }
 
+            if (notificationType === 'Generic') {
+                // Read the editable JSON directly from the DOM. The contenteditable
+                // pre only writes back to `genericNotification` on blur, which doesn't
+                // always fire before submit when the user clicks Send while still
+                // focused on the editor.
+                const editor = document.querySelector<HTMLPreElement>('.json-viewer[contenteditable="true"]');
+                const source = editor ? editor.innerText : genericNotification;
+                try {
+                    payload = JSON.parse(source);
+                }
+                catch (e) {
+                    throw new Error("Sorry, in this version we only accept JSON as syntax");
+                }
+            }
+
             await sendNotification(inbox,payload); 
             dispatch('changeTab','Successfully Sent Notification!');
             playWhoosh();
@@ -357,6 +371,12 @@
 
 <h3>Send {notificationType} Notification</h3>
 
+{#if notificationType === "Generic"}
+<p>
+<small>A generic notification lets you send arbitrary JSON documents to an inbox. Use for debugging purposes only.</small>
+</p>
+{/if}
+
 {#if tentativeFlag}
 <div class="mb-3">
     <input class="form-check-input" type="checkbox" id="tentative" bind:checked={isTentative}>
@@ -368,10 +388,12 @@
 
 <form on:submit|preventDefault={handleSubmit}>
     <h3>To</h3>
+
     <To bind:inbox={inbox} 
         bind:targetId={targetId} 
         bind:targetName={targetName} 
-        bind:targetType={targetType}/>
+        bind:targetType={targetType}
+        limited={notificationType === "Generic"}/>    
 
     {#if notificationType === 'Announce'}
         <h3>What</h3>
@@ -458,6 +480,12 @@
             bind:targetId={targetId}
             bind:targetName={targetName}
             bind:targetType={targetType}/>
+    {/if}
+
+    {#if notificationType === 'Generic'}
+        <h3>Source</h3>
+
+        <GenericPayload bind:data={genericNotification}/>
     {/if}
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">

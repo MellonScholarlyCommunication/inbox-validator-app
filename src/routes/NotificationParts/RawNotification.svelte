@@ -1,11 +1,19 @@
 <script lang="ts">
-    import { type Notification } from "../../inbox";
     export let data: string;
-    
+    export let editable: boolean = false;
+
+    function escapeHtml(s: string): string {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function highlight(data: string) : string {
-        const json = JSON.stringify(JSON.parse(data),null,2);
-        return json
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        let json: string;
+        try {
+            json = JSON.stringify(JSON.parse(data), null, 2);
+        } catch {
+            return escapeHtml(data);
+        }
+        return escapeHtml(json)
             .replace(
                 /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
                 m => {
@@ -16,10 +24,21 @@
             }
       );
     }
+
+    function onBlur(e: FocusEvent) {
+        const el = e.currentTarget as HTMLPreElement;
+        data = el.innerText;
+        el.innerHTML = highlight(data);
+    }
 </script>
 
 {#if data}
-    <pre class="json-viewer border rounded p-3 bg-dark">{@html highlight(data)}</pre>
+    <pre
+        class="json-viewer border rounded p-3 bg-dark"
+        contenteditable={editable}
+        spellcheck="false"
+        on:blur={onBlur}
+    >{@html highlight(data)}</pre>
 {/if}
 
 <style>
