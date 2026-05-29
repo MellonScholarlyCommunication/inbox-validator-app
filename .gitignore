@@ -25,3 +25,5 @@ dist-ssr
 
 # NVM
 .nvmrc
+
+.env
