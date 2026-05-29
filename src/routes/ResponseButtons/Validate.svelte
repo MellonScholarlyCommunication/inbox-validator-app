@@ -1,7 +1,13 @@
 <script lang="ts">
-    import { notificationData } from '../../store';
+    import { notificationData, defaultOptions } from '../../store';
     import { validateNotification } from "../../validate";
     import { type Notification } from '../../inbox';
+
+    let validatorApi : string;
+
+    if ($defaultOptions) {
+        validatorApi = $defaultOptions.validatorUrl;
+    }
 
     interface Report {
         data: string;
@@ -20,7 +26,9 @@
         }
 
         try {
-            const result = await validateNotification(notification.data);
+            const result = await validateNotification(notification.data, {
+                api: validatorApi
+            });
             validationReport = {
                 data: result.data,
                 isError: false

@@ -4,9 +4,14 @@ export interface ValidationResult {
     data: string;
 }
 
-export async function validateNotification(data: string) : Promise<ValidationResult> {
+export interface ValidateOptions {
+    api?: string;
+}
+
+export async function validateNotification(data: string, options: ValidateOptions = {}) : Promise<ValidationResult> {
+    const api = options.api ?? VALIDATOR_URL;
     try {
-        const response = await fetch(VALIDATOR_URL, {
+        const response = await fetch(api, {
             method: "POST",
             body: data
         });
@@ -22,6 +27,6 @@ export async function validateNotification(data: string) : Promise<ValidationRes
         } as ValidationResult;
     }
     catch (e) {
-        throw new Error(`Failed to contact ${VALIDATOR_URL}`);
+        throw new Error(`Failed to contact ${api}`);
     }
 }
