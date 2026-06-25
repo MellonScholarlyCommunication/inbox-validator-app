@@ -27,7 +27,7 @@
     "@rdfjs/types": "^2.0.1",
     "@types/streamify-string": "^1.0.4",
     "bootstrap": "^5.3.8",
-    "ldn-inbox-server": "^1.8.11",
+    "ldn-inbox-server": "^1.9.0",
     "n3": "^2.0.3",
     "rdf-parse": "^5.0.0",
     "svelte-spa-router": "^4.0.0"
