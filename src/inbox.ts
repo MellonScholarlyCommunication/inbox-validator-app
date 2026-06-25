@@ -56,9 +56,30 @@ export interface Notification {
 
 export interface Member {
     name: string;
-    mimeType?: string; 
+    mimeType?: string;
     size?: number;
     date?: string;
+}
+
+export interface Triple {
+    subject: string;
+    predicate: string;
+    object: string;
+    objectIsLiteral: boolean;
+}
+
+export async function parseGraph(data: string, type = 'application/ld+json') : Promise<Triple[]> {
+    const store = await parseRDF(data, type);
+    const triples : Triple[] = [];
+    store.forEach((quad: Quad) => {
+        triples.push({
+            subject: quad.subject.value,
+            predicate: quad.predicate.value,
+            object: quad.object.value,
+            objectIsLiteral: quad.object.termType === 'Literal'
+        });
+    }, null, null, null, null);
+    return triples;
 }
 
 export function genUUID() {

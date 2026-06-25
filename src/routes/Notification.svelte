@@ -9,6 +9,7 @@
   import Toggle from "./Helper/Toggle.svelte";
   import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
   import RawNotification from './NotificationParts/RawNotification.svelte';
+  import GraphNotification from './NotificationParts/GraphNotification.svelte';
   import Validate from './ResponseButtons/Validate.svelte';
   import Accept from './ResponseButtons/Accept.svelte';
   import Reject from './ResponseButtons/Reject.svelte';
@@ -20,6 +21,7 @@
   let showToast = false;
   let toastMessage = "";
   let viewSource = false;
+  let showGraph = false;
   let inbox : string;
   let notificationUrl : string;
   
@@ -35,8 +37,6 @@
   }
 
   let tabs : Tab[] = [];
-
-  
 
   let activeTab : Tab | null = null;
 
@@ -71,8 +71,23 @@
         <h3>Invalid Notification</h3>
       {/if}
       <h6>{inbox}{params.name}</h6>
-      <Toggle bind:enabled={viewSource}/>
-      {#if viewSource}
+      <div class="view-controls">
+        <Toggle bind:enabled={viewSource}/>
+        <button class="btn btn-outline-dark graph-btn" on:click={() => showGraph = !showGraph}>
+          <svg class="rdf-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="12" y1="5" x2="5" y2="18"/>
+            <line x1="12" y1="5" x2="19" y2="18"/>
+            <line x1="5" y1="18" x2="19" y2="18"/>
+            <circle cx="12" cy="5" r="3"/>
+            <circle cx="5" cy="18" r="3"/>
+            <circle cx="19" cy="18" r="3"/>
+          </svg>
+          {showGraph ? 'Hide graph' : 'View graph'}
+        </button>
+      </div>
+      {#if showGraph}
+        <GraphNotification data={$notificationData.data}/>
+      {:else if viewSource}
         <RawNotification data={$notificationData.data}/>
       {:else}
         <ParsedNotification object={$notificationData.object}/>
@@ -140,6 +155,33 @@
     display: flex;       /* Lined up in a row */
     gap: 12px;           /* The magic spacing property */
     margin-bottom: 5px;  /* Space between buttons and the content div */
+  }
+
+  .view-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .rdf-icon {
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 6px;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  /* Keep the graph button from flipping colours on hover/focus/active */
+  .graph-btn:hover,
+  .graph-btn:focus,
+  .graph-btn:active {
+    color: var(--bs-btn-color);
+    background-color: transparent;
+    border-color: var(--bs-btn-border-color);
+    box-shadow: none;
   }
 
 </style>
