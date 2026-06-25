@@ -1,7 +1,7 @@
 import { type Agent } from "./inbox";
-//export const INBOX_URL = "http://localhost:5051/inbox/";
-export const INBOX_URL = "https://patrickhochstenbach.net/";
-export const VALIDATOR_URL =  'http://localhost:3000/validate';
+
+export const INBOX_URL = import.meta.env.VITE_INBOX_URL ?? '/inbox/';
+export const VALIDATOR_URL = import.meta.env.VITE_VALIDATOR_URL ?? '/validate';
 export const THIS_ACTOR : Agent = {
     id: "http://generic.service.org",
     type: "https://www.w3.org/ns/activitystreams#Person",

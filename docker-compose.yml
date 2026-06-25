@@ -19,6 +19,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
+      args:
+        VITE_INBOX_URL: ${VITE_INBOX_URL:-/inbox/}
+        VITE_VALIDATOR_URL: ${VITE_VALIDATOR_URL:-/validate}
+    environment:
+      VALIDATOR_UPSTREAM: ${VALIDATOR_UPSTREAM:-http://host.docker.internal:3000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:80"
     depends_on:
