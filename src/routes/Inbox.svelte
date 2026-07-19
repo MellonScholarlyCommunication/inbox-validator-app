@@ -2,12 +2,23 @@
   import 'bootstrap/dist/css/bootstrap.min.css';
   import 'bootstrap/dist/js/bootstrap.bundle.min.js';
   import { defaultOptions} from "../store";
-	import { listInbox } from "../inbox";
+	import { listInbox, getNotification } from "../inbox";
 
   let inbox : string;
 
   if ($defaultOptions) {
 	  inbox = $defaultOptions.inboxUrl;
+  }
+
+  // Lazily resolve a member's actor id; failures resolve to undefined
+  async function loadActor(name: string) : Promise<string | undefined> {
+    try {
+      const notification = await getNotification(inbox + name);
+      return notification.object?.actor?.id;
+    }
+    catch {
+      return undefined;
+    }
   }
 </script>
 
@@ -20,6 +31,7 @@
     <tr>
       <th class="type-width">Type</th>
       <th>Name</th>
+      <th>Actor</th>
       <th class="text-end">Size</th>
       <th>Modified</th>
     </tr>
@@ -47,6 +59,15 @@
           </span>
         </td>
         <td><a href="#/notification/{member.name}">{member.name}</a></td>
+        <td class="text-muted">
+          {#await loadActor(member.name)}
+            <span class="text-secondary">…</span>
+          {:then actor}
+            {actor ?? "--"}
+          {:catch}
+            --
+          {/await}
+        </td>
         <td class="text-end text-muted">{ member.size ?? "--"}</td>
         <td class="text-muted">{ member.date ?? "--"}</td>
       </tr>

@@ -195,10 +195,18 @@ export async function listInbox(url: string) : Promise<Member[]> {
     }
 
     // Clean the members and remove the base url
-    return inbox.map(member => ({
+    const members = inbox.map(member => ({
         ...member,
         name: member.name.replace(url,"")
     }));
+
+    // Sort most recent first; members without a date sink to the bottom
+    return members.sort((a,b) => {
+        if (a.date && b.date) return b.date.localeCompare(a.date);
+        if (a.date) return -1;
+        if (b.date) return 1;
+        return 0;
+    });
 }
 
 async function parseNotification(data: string, type: string) : Promise<Notification> {

@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://coar-notify.net/"
+  ],
+  "id": "urn:uuid:aa73d150-7fe3-43e5-91d6-d88e5c9c6a0f",
+  "type": [
+    "Offer",
+    "coar-notify:EndorsementAction"
+  ],
+  "actor": {
+    "id": "http://neutron:4000",
+    "type": [
+      "Service"
+    ],
+    "name": "DSpace Started with Docker Compose"
+  },
+  "object": {
+    "id": "http://neutron:4000/handle/123456789/58",
+    "type": [
+      "Page",
+      "sorg:AboutPage"
+    ],
+    "ietf:cite-as": "http://neutron:4000/handle/123456789/58",
+    "ietf:item": {
+      "id": "http://neutron:4000/bitstreams/eb513c90-5904-4f23-bfcd-6d14defa1bbf/download",
+      "type": [
+        "Article",
+        "sorg:ScholarlyArticle"
+      ],
+      "mediaType": "image/png"
+    }
+  },
+  "origin": {
+    "id": "http://neutron:4000",
+    "type": [
+      "Service"
+    ],
+    "inbox": "http://neutron:8080/server/ldn/inbox"
+  },
+  "target": {
+    "id": "https://inboxviewer.patrickhochstenbach.net/service/",
+    "type": [
+      "Service"
+    ],
+    "inbox": "https://inboxviewer.patrickhochstenbach.net/service/inbox/"
+  }
+}
