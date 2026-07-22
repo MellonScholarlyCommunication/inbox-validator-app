@@ -3,6 +3,7 @@
   import 'bootstrap/dist/js/bootstrap.bundle.min.js';
   import { defaultOptions} from "../store";
 	import { listInbox, getNotification } from "../inbox";
+  import { AS } from "../globals";
 
   let inbox : string;
 
@@ -10,16 +11,27 @@
 	  inbox = $defaultOptions.inboxUrl;
   }
 
-  // Lazily resolve a member's actor id; failures resolve to undefined
-  async function loadActor(name: string) : Promise<string | undefined> {
+  // Lazily fetch a member's notification once and pull out the bits the list
+  // shows (the AS2 activity type and the actor id); failures resolve to empty.
+  async function loadMeta(name: string) : Promise<{ type?: string; actor?: string }> {
     try {
       const notification = await getNotification(inbox + name);
-      return notification.object?.actor?.id;
+      return {
+        type: mainType(notification.object?.type),
+        actor: notification.object?.actor?.id
+      };
     }
     catch {
-      return undefined;
+      return {};
     }
   }
+
+  // The activity's main AS2 type (e.g. Announce, Offer), stripped of its namespace.
+  function mainType(types?: string[]) : string | undefined {
+    const as2 = types?.find(t => t.startsWith(AS));
+    return as2 ? as2.replace(AS, "") : undefined;
+  }
+
 </script>
 
 {#await listInbox(inbox)}
@@ -40,30 +52,25 @@
   {#if notifications}
   <tbody>
     {#each notifications as member}
+      {@const meta = loadMeta(member.name)}
       <tr>
         <td>
           <span class="member-icon icon-txt">
-            {#if member.mimeType}
-              {#if member.mimeType === 'application/ld+json'}
-              JSON-LD
-              {:else if member.mimeType === 'application/json'}
-              JSON
-              {:else if member.mimeType === 'text/turtle'}
-              TURTLE
-              {:else}
-              OTHER
-              {/if}
-            {:else}
+            {#await meta}
+              <span class="text-secondary">…</span>
+            {:then meta}
+              {meta.type ?? "--"}
+            {:catch}
               --
-            {/if}
+            {/await}
           </span>
         </td>
         <td><a href="#/notification/{member.name}">{member.name}</a></td>
         <td class="text-muted">
-          {#await loadActor(member.name)}
+          {#await meta}
             <span class="text-secondary">…</span>
-          {:then actor}
-            {actor ?? "--"}
+          {:then meta}
+            {meta.actor ?? "--"}
           {:catch}
             --
           {/await}
