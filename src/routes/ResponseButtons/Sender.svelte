@@ -35,7 +35,6 @@
     let summary : string;
     
     let inbox : string;
-    let traceDelivery : boolean;
 
     let addedNotificationType : string;
     let asObjectType : string;
@@ -80,9 +79,6 @@
         // Tentative fields
         isTentative = false;
         summary = "";
-
-        // Trace delivery toggle (relay only)
-        traceDelivery = false;
 
         // Find out the right inbox to send notifications to...
         const inboxInit : string | undefined = notification.object?.origin?.inbox ?
@@ -213,7 +209,10 @@
     let showToast = false;
     let errorMessage = "";
     let showTrace = false;
+    let tracePending = false;
     let traceResult : RelayTrace | null = null;
+    let traceError : string | null = null;
+    let sentPayload : any = null;
 
     async function handleSubmit() {
         try {
@@ -355,14 +354,28 @@
                 relayToken: $defaultOptions.relayToken
             };
 
-            if (traceDelivery && $defaultOptions.relayUrl) {
-                // Trace mode: the relay returns the delivery path. Don't dispatch
-                // changeTab yet — it unmounts this component (and the modal). We
-                // dispatch on modal close, and only when the delivery was ok.
-                traceResult = await sendNotificationTraced(inbox, payload, relayOpts);
+            if ($defaultOptions.relayUrl) {
+                // Always trace through the relay. Open the modal immediately (before
+                // awaiting) so a slow remote inbox shows progress instead of a dead
+                // Send button. Don't dispatch changeTab yet — that unmounts this
+                // component (and the modal); we dispatch on close, only when ok.
+                sentPayload = payload;
+                traceResult = null;
+                traceError = null;
+                tracePending = true;
                 showTrace = true;
-                if (traceResult.ok) {
-                    playWhoosh();
+                try {
+                    traceResult = await sendNotificationTraced(inbox, payload, relayOpts);
+                    if (traceResult.ok) {
+                        playWhoosh();
+                    }
+                }
+                catch (e: any) {
+                    // Relay unreachable / rejected (401/503/…) — show it in the modal.
+                    traceError = e.message;
+                }
+                finally {
+                    tracePending = false;
                 }
             }
             else {
@@ -381,6 +394,9 @@
         showTrace = false;
         const wasOk = traceResult?.ok;
         traceResult = null;
+        traceError = null;
+        sentPayload = null;
+        tracePending = false;
         // On success, dispatch now (this unmounts Sender). On failure, just
         // dismiss so the user stays on the form to retry.
         if (wasOk) {
@@ -407,7 +423,13 @@
 {/if}
 
 {#if showTrace}
-    <TraceModal trace={traceResult} on:close={closeTrace} />
+    <TraceModal
+        target={inbox}
+        pending={tracePending}
+        trace={traceResult}
+        error={traceError}
+        payload={sentPayload}
+        on:close={closeTrace} />
 {/if}
 
 <h3>Send {notificationType} Notification</h3>
@@ -530,12 +552,7 @@
     {/if}
 
     {#if $defaultOptions.relayUrl}
-    <div class="mb-3">
-        <input class="form-check-input" type="checkbox" id="traceDelivery" bind:checked={traceDelivery}>
-        <label class="form-check-label" for="traceDelivery">
-            Trace delivery (show redirects &amp; status via the relay)
-        </label>
-    </div>
+    <p class="text-muted small mb-2">Delivery is routed through the relay; a trace of what happens opens when you send.</p>
     {/if}
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
