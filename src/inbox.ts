@@ -123,6 +123,29 @@ export interface SendOptions {
     relayToken?: string | null;
 }
 
+// Turn a non-ok relay response into a human message. The relay's own body
+// already carries a friendly reason for 502 (why the inbox couldn't be reached).
+async function relayErrorMessage(response: Response) : Promise<string> {
+    const detail = (await response.text().catch(() => '')).trim();
+    switch (response.status) {
+        case 401:
+        case 403:
+            return 'The relay rejected the request — your relay token is missing or invalid. Set a valid token under Configure.';
+        case 503:
+            return 'The relay has no tokens configured. Ask the relay operator to issue you a token.';
+        case 413:
+            return 'The notification is too large for the relay to forward.';
+        case 502:
+            return detail || 'The relay could not reach the target inbox.';
+        case 400:
+            return detail || 'The relay rejected the request (bad forward target).';
+        default:
+            return detail
+                ? `The relay returned an error (HTTP ${response.status}): ${detail}`
+                : `The relay returned an error (HTTP ${response.status}).`;
+    }
+}
+
 export async function sendNotification(inboxUrl: string, payload: any, opts: SendOptions = {}) {
     // Opt-in relay: with relayUrl set, POST there with X-Forward-To=inboxUrl;
     // blank => direct send. Store-free, mirroring validate.ts's options.api.
@@ -135,24 +158,30 @@ export async function sendNotification(inboxUrl: string, payload: any, opts: Sen
         }
     }
     console.log(`Sending to ${url}${opts.relayUrl ? ` (forward to ${inboxUrl})` : ''}:`, payload);
+
+    let response: Response;
     try {
-        const response = await fetch(url, {
+        response = await fetch(url, {
             method: 'POST',
             headers,
             body: JSON.stringify(payload)
         });
-
-        if (!response.ok) {
-            console.log(response.status);
-            throw new Error("Failed");
-        }
-
-        return response;
     }
     catch (e) {
+        // fetch rejects ("Failed to fetch") on a network/CORS failure — nothing
+        // was reached, so name what we couldn't contact.
         console.error(`failed to contact ${url}`, e);
-        throw new Error(`Failed to send notification to ${inboxUrl}`);
+        throw new Error(opts.relayUrl
+            ? `Could not reach the relay at ${opts.relayUrl}. Is it running and is the endpoint correct?`
+            : `Could not reach the inbox at ${inboxUrl}. Is it reachable?`);
     }
+
+    if (!response.ok) {
+        throw new Error(opts.relayUrl
+            ? await relayErrorMessage(response)
+            : `The inbox at ${inboxUrl} returned HTTP ${response.status}.`);
+    }
+    return response;
 }
 
 export interface RelayTraceHop {
@@ -191,14 +220,21 @@ export async function sendNotificationTraced(inboxUrl: string, payload: any, opt
     if (opts.relayToken) {
         headers['Authorization'] = `Bearer ${opts.relayToken}`;
     }
-    const response = await fetch(opts.relayUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-    });
+    let response: Response;
+    try {
+        response = await fetch(opts.relayUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+        });
+    }
+    catch (e) {
+        console.error(`failed to contact relay ${opts.relayUrl}`, e);
+        throw new Error(`Could not reach the relay at ${opts.relayUrl}. Is it running and is the endpoint correct?`);
+    }
     if (!response.ok) {
-        // Pre-forward failure (401/400/413/503) — surfaced as an error, not a trace.
-        throw new Error(`Relay refused the request (HTTP ${response.status})`);
+        // Pre-forward failure (401/403/413/503/400) — an error, not a trace envelope.
+        throw new Error(await relayErrorMessage(response));
     }
     return await response.json() as RelayTrace;
 }
