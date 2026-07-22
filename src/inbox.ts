@@ -155,6 +155,54 @@ export async function sendNotification(inboxUrl: string, payload: any, opts: Sen
     }
 }
 
+export interface RelayTraceHop {
+    url: string;
+    status: number;
+    statusText: string;
+    location: string | null;
+}
+
+export interface RelayTrace {
+    ok: boolean;
+    target: string;
+    hops: RelayTraceHop[];
+    final: {
+        url: string;
+        status: number;
+        statusText: string;
+        location: string | null;
+        bodySnippet: string;
+    } | null;
+    error: string | null;
+}
+
+export async function sendNotificationTraced(inboxUrl: string, payload: any, opts: SendOptions = {}) : Promise<RelayTrace> {
+    // Trace only works through the relay: a browser can't see cross-origin
+    // redirect hops or read the response body. The relay answers with a JSON
+    // envelope at HTTP 200 — read envelope.ok, not the HTTP status.
+    if (!opts.relayUrl) {
+        throw new Error('Trace delivery requires a relay endpoint');
+    }
+    const headers: Record<string,string> = {
+        'Content-Type': 'application/ld+json',
+        'X-Forward-To': inboxUrl,
+        'X-Relay-Trace': 'true'
+    };
+    if (opts.relayToken) {
+        headers['Authorization'] = `Bearer ${opts.relayToken}`;
+    }
+    const response = await fetch(opts.relayUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        // Pre-forward failure (401/400/413/503) — surfaced as an error, not a trace.
+        throw new Error(`Relay refused the request (HTTP ${response.status})`);
+    }
+    return await response.json() as RelayTrace;
+}
+
 export async function getNotification(url: string) : Promise<Notification> {
     const response = await fetch(url);
 

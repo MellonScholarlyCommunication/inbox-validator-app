@@ -69,7 +69,8 @@ function corsHeaders() {
     return {
         'Access-Control-Allow-Origin': ALLOW_ORIGIN,
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'authorization, content-type, x-forward-to',
+        'Access-Control-Allow-Headers': 'authorization, content-type, x-forward-to, x-relay-trace',
+        'Access-Control-Max-Age': '600',
     };
 }
 
@@ -101,6 +102,84 @@ function readBody(req, cap) {
         req.on('end', () => { if (!over) resolve(Buffer.concat(chunks)); });
         req.on('error', e => { if (!over) reject(e); });
     });
+}
+
+// Turn Node's opaque "fetch failed" into something actionable — the real reason
+// is in e.cause.code (ECONNREFUSED, ENOTFOUND, …) or an AbortError on timeout.
+function describeFetchError(e) {
+    if (e?.name === 'AbortError') {
+        return `No response within ${FORWARD_TIMEOUT_MS / 1000}s (timed out) — the server may be down or slow to answer.`;
+    }
+    const code = e?.cause?.code || e?.code;
+    switch (code) {
+        case 'ENOTFOUND':
+        case 'EAI_AGAIN':
+            return `Could not find the server — its hostname did not resolve (DNS lookup failed). Check the inbox URL.`;
+        case 'ECONNREFUSED':
+            return `The server refused the connection — nothing is listening at that host/port. Is the inbox URL correct and the server running?`;
+        case 'ETIMEDOUT':
+        case 'UND_ERR_CONNECT_TIMEOUT':
+            return `Timed out connecting to the server — it may be down or unreachable.`;
+        case 'ECONNRESET':
+            return `The server closed the connection before responding (connection reset).`;
+        case 'EHOSTUNREACH':
+        case 'ENETUNREACH':
+            return `The server is unreachable from the relay (no network route).`;
+    }
+    if (typeof code === 'string' && (code.startsWith('CERT_') || code.startsWith('ERR_TLS') ||
+        code === 'DEPTH_ZERO_SELF_SIGNED_CERT' || code === 'SELF_SIGNED_CERT_IN_CHAIN' ||
+        code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE')) {
+        return `The server's HTTPS certificate could not be verified (${code}).`;
+    }
+    return `Could not reach the server: ${e?.cause?.message || e?.message || String(e)}`;
+}
+
+// Trace mode: follow redirects by hand (cap 5) so the SPA can see each hop —
+// a browser can't observe cross-origin redirects or read the response body.
+async function forwardTraced(target, body, contentType) {
+    const hops = [];
+    let url = target;
+    for (let i = 0; i < 5; i++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS);
+        let resp;
+        try {
+            resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': contentType || 'application/ld+json' },
+                body,
+                redirect: 'manual',
+                signal: controller.signal,
+            });
+        } catch (e) {
+            clearTimeout(timer);
+            return { ok: false, target, hops, final: null, error: describeFetchError(e) };
+        }
+        clearTimeout(timer);
+
+        const location = resp.headers.get('location');
+        if (resp.status >= 300 && resp.status < 400 && location) {
+            const next = new URL(location, url).toString();
+            hops.push({ url, status: resp.status, statusText: resp.statusText, location: next });
+            url = next;
+            continue;
+        }
+        const text = await resp.text();
+        return {
+            ok: resp.ok,
+            target,
+            hops,
+            final: {
+                url,
+                status: resp.status,
+                statusText: resp.statusText,
+                location: location ? new URL(location, url).toString() : null,
+                bodySnippet: text.slice(0, 1024),
+            },
+            error: null,
+        };
+    }
+    return { ok: false, target, hops, final: null, error: 'Too many redirects (>5)' };
 }
 
 async function handleRelay(req, res) {
@@ -143,6 +222,16 @@ async function handleRelay(req, res) {
 
     const to = tokenRecipient(token);
 
+    // Trace mode returns a JSON envelope at HTTP 200 — the delivery outcome
+    // lives in envelope.ok, so the SPA reads that, not the relay status.
+    if (req.headers['x-relay-trace'] === 'true') {
+        const trace = await forwardTraced(target, body, req.headers['content-type']);
+        const hops = `${trace.hops.length} hop${trace.hops.length === 1 ? '' : 's'}`;
+        audit({ token, to, ip, target, status: `${trace.final?.status ?? 'ERR'} (trace, ${hops})` });
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOW_ORIGIN });
+        return res.end(JSON.stringify(trace));
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS);
     let upstream;
@@ -153,10 +242,10 @@ async function handleRelay(req, res) {
             body,
             signal: controller.signal,
         });
-    } catch {
+    } catch (e) {
         clearTimeout(timer);
         audit({ token, to, ip, target, status: 502 });
-        return send(res, 502, 'Upstream request failed');
+        return send(res, 502, describeFetchError(e));
     }
     clearTimeout(timer);
 

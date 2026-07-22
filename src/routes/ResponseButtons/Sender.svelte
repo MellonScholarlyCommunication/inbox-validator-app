@@ -2,11 +2,13 @@
     import { get } from 'svelte/store'; 
     import { createEventDispatcher } from 'svelte';
     import { notificationData, defaultActor, defaultOrigin, defaultOptions } from '../../store';
-    import { 
+    import {
         type Notification,
-        type PageObject, 
+        type PageObject,
+        type RelayTrace,
         genUUID,
-        sendNotification } from '../../inbox';
+        sendNotification,
+        sendNotificationTraced } from '../../inbox';
     import whooshUrl from '../../assets/woosh.mp3';
     import { 
         AS, COAR_NOTIFY, SORG, 
@@ -18,6 +20,7 @@
     import ServiceResultObject from './SenderParts/ServiceResultObject.svelte';
     import PreviousNotification from './SenderParts/PreviousNotification.svelte';
     import GenericPayload from './SenderParts/GenericPayload.svelte';
+    import TraceModal from './SenderParts/TraceModal.svelte';
    
     export let notificationType : string;
 
@@ -32,6 +35,7 @@
     let summary : string;
     
     let inbox : string;
+    let traceDelivery : boolean;
 
     let addedNotificationType : string;
     let asObjectType : string;
@@ -76,6 +80,9 @@
         // Tentative fields
         isTentative = false;
         summary = "";
+
+        // Trace delivery toggle (relay only)
+        traceDelivery = false;
 
         // Find out the right inbox to send notifications to...
         const inboxInit : string | undefined = notification.object?.origin?.inbox ?
@@ -205,6 +212,8 @@
     
     let showToast = false;
     let errorMessage = "";
+    let showTrace = false;
+    let traceResult : RelayTrace | null = null;
 
     async function handleSubmit() {
         try {
@@ -341,16 +350,41 @@
                 }
             }
 
-            await sendNotification(inbox, payload, {
+            const relayOpts = {
                 relayUrl: $defaultOptions.relayUrl,
                 relayToken: $defaultOptions.relayToken
-            });
-            dispatch('changeTab','Successfully Sent Notification!');
-            playWhoosh();
+            };
+
+            if (traceDelivery && $defaultOptions.relayUrl) {
+                // Trace mode: the relay returns the delivery path. Don't dispatch
+                // changeTab yet — it unmounts this component (and the modal). We
+                // dispatch on modal close, and only when the delivery was ok.
+                traceResult = await sendNotificationTraced(inbox, payload, relayOpts);
+                showTrace = true;
+                if (traceResult.ok) {
+                    playWhoosh();
+                }
+            }
+            else {
+                await sendNotification(inbox, payload, relayOpts);
+                dispatch('changeTab','Successfully Sent Notification!');
+                playWhoosh();
+            }
         }
         catch (e: any) {
             showToast = true;
             errorMessage = e.message;
+        }
+    }
+
+    function closeTrace() {
+        showTrace = false;
+        const wasOk = traceResult?.ok;
+        traceResult = null;
+        // On success, dispatch now (this unmounts Sender). On failure, just
+        // dismiss so the user stays on the form to retry.
+        if (wasOk) {
+            dispatch('changeTab','Successfully Sent Notification!');
         }
     }
 </script>
@@ -370,6 +404,10 @@
       </div>
     </div>
   </div>
+{/if}
+
+{#if showTrace}
+    <TraceModal trace={traceResult} on:close={closeTrace} />
 {/if}
 
 <h3>Send {notificationType} Notification</h3>
@@ -491,8 +529,17 @@
         <GenericPayload bind:data={genericNotification}/>
     {/if}
 
+    {#if $defaultOptions.relayUrl}
+    <div class="mb-3">
+        <input class="form-check-input" type="checkbox" id="traceDelivery" bind:checked={traceDelivery}>
+        <label class="form-check-label" for="traceDelivery">
+            Trace delivery (show redirects &amp; status via the relay)
+        </label>
+    </div>
+    {/if}
+
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button type="button" 
+        <button type="button"
             class="btn btn-outline-secondary"
             on:click={handleReset}>Reset</button>
         <button type="submit" class="btn btn-primary">Send</button>
