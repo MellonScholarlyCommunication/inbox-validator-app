@@ -13,6 +13,16 @@ const ALLOW_ORIGIN = process.env.RELAY_ALLOW_ORIGIN || '*';
 const MAX_BODY = 1024 * 1024;        // 1 MB cap on forwarded payloads
 const FORWARD_TIMEOUT_MS = 15_000;   // upstream deadline
 
+// log4js-style lines so relay output matches the inbox's; honours the same
+// LOG4JS level from .env. Zero-dep by design — mimics the layout, not the lib.
+const LEVELS = { trace: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, off: 99 };
+const MIN_LEVEL = LEVELS[(process.env.RELAY_LOG_LEVEL || process.env.LOG4JS || 'info').toLowerCase()] ?? LEVELS.info;
+
+function log(level, message) {
+    if (LEVELS[level] < MIN_LEVEL) return;
+    process.stdout.write(`[${new Date().toISOString()}] [${level.toUpperCase()}] relay - ${message}\n`);
+}
+
 // --- Extension seams (documented next hardening step, not implemented here) ---
 // RELAY_ALLOW_HOSTS: a target hostname allowlist + private-range/loopback guard
 //   to stop a token holder using the relay for SSRF to internal services.
@@ -70,9 +80,7 @@ function send(res, status, message) {
 
 function audit({ token, to, ip, target, status }) {
     const prefix = token ? token.slice(0, 6) : '-';
-    process.stdout.write(
-        `${new Date().toISOString()} token=${prefix} to=${JSON.stringify(to || '')} ip=${ip} target=${target || '-'} -> ${status}\n`
-    );
+    log('info', `token=${prefix} to=${JSON.stringify(to || '')} ip=${ip} target=${target || '-'} -> ${status}`);
 }
 
 function readBody(req, cap) {
@@ -178,7 +186,7 @@ const server = http.createServer((req, res) => {
     }
     if (req.method === 'POST' && isRelay) {
         handleRelay(req, res).catch(e => {
-            console.error('relay error', e);
+            log('error', `unhandled: ${e?.stack || e}`);
             if (!res.headersSent) send(res, 500, 'Internal relay error');
         });
         return;
@@ -187,5 +195,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    process.stdout.write(`relay listening on :${PORT} (token dir: ${TOKEN_DIR})\n`);
+    log('info', `listening on :${PORT} (token dir: ${TOKEN_DIR})`);
 });
