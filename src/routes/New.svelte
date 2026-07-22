@@ -40,7 +40,7 @@
 <h3>New Notification</h3>
 
 <nav class="navbar">
-    <a href="/" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>
+    <a href="/inbox" use:link class="btn btn-light text-decoration-none">&lt; BACK TO INBOX</a>
 </nav>
 
 {#if !activeTab}

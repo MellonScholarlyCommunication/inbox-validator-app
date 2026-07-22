@@ -12,7 +12,7 @@
 				<div
 					class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
 				>
-					<h2 class="h5 mb-0" id="app-title">INBOX VIEWER</h2>
+					<h2 class="h5 mb-0" id="app-title"><a href="#/" class="text-white text-decoration-none">INBOX VIEWER</a></h2>
 					 <div>
 						<button 
           				class="btn btn-light"
