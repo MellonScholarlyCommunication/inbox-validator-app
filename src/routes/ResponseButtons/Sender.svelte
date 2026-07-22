@@ -236,15 +236,17 @@
                 payload['inReplyTo'] = inReplyTo;
             }
 
+            payload['target'] = {};
             if (targetId.length) {
-                payload['target'] = { id: targetId };
-                if (targetName.length) {
-                    payload['target']['name'] = targetName;
-                }
-                if (targetName.length) {
-                    payload['target']['type'] = targetType;
-                }
+                payload['target']['id'] = targetId;
             }
+            if (targetName.length) {
+                payload['target']['name'] = targetName;
+            }
+            // A target must always carry a type (defaulting to as:Service) and the
+            // inbox the notification is delivered to.
+            payload['target']['type'] = targetType.length ? targetType : 'Service';
+            payload['target']['inbox'] = inbox;
 
             if (notificationType === 'Announce') {
                 if (addedNotificationType === 'coar-notify:RelationshipAction') {
