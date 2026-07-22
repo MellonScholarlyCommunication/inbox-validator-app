@@ -403,46 +403,44 @@ export const LD_CACHE : Record<string,any> = {
     }
   },
   "http://www.w3.org/ns/ldp": {
-	"@context": {
-		"ldp": "http://www.w3.org/ns/ldp#",
+	  "@context": {
+		  "ldp": "http://www.w3.org/ns/ldp#",
+		  "id": "@id",
+		  "type": "@type",
+		  "Container": "ldp:Container",
+		  "BasicContainer": "ldp:BasicContainer",
+		  "DirectContainer": "ldp:DirectContainer",
+		  "IndirectContainer": "ldp:IndirectContainer",
+		  "hasMemberRelation": {"@id": "ldp:hasMemberRelation", "@type":"@id"},
+		  "isMemberOfRelation": {"@id": "ldp:isMemberOfRelation", "@type":"@id"},
+		  "membershipResource": {"@id": "ldp:membershipResource", "@type":"@id"},
+		  "insertedContentRelation": {"@id": "ldp:insertedContentRelation", "@type":"@id"},
+		  "contains": {"@id": "ldp:contains", "@type":"@id"},
+		  "member": {"@id": "ldp:member", "@type":"@id"},
+		  "constrainedBy": {"@id": "ldp:constrainedBy", "@type":"@id"},
 
-		"id": "@id",
-		"type": "@type",
+		  "Resource": "ldp:Resource",
+		  "RDFSource": "ldp:RDFSource",
+		  "NonRDFSource": "ldp:NonRDFSource",
 
-		"Container": "ldp:Container",
-		"BasicContainer": "ldp:BasicContainer",
-		"DirectContainer": "ldp:DirectContainer",
-		"IndirectContainer": "ldp:IndirectContainer",
-		"hasMemberRelation": {"@id": "ldp:hasMemberRelation", "@type":"@id"},
-		"isMemberOfRelation": {"@id": "ldp:isMemberOfRelation", "@type":"@id"},
-		"membershipResource": {"@id": "ldp:membershipResource", "@type":"@id"},
-		"insertedContentRelation": {"@id": "ldp:insertedContentRelation", "@type":"@id"},
-		"contains": {"@id": "ldp:contains", "@type":"@id"},
-		"member": {"@id": "ldp:member", "@type":"@id"},
-		"constrainedBy": {"@id": "ldp:constrainedBy", "@type":"@id"},
+		  "MemberSubject": "ldp:MemberSubject",
+		  "PreferContainment": "ldp:PreferContainment",
+		  "PreferMembership": "ldp:PreferMembership",
+		  "PreferMinimalContainer": "ldp:PreferMinimalContainer",
 
-		"Resource": "ldp:Resource",
-		"RDFSource": "ldp:RDFSource",
-		"NonRDFSource": "ldp:NonRDFSource",
+		  "PageSortCriterion": "ldp:PageSortCriterion",
+		  "pageSortCriteria": {"@id": "ldp:pageSortCriteria", "@type":"@id", "@container": "@list"},
+		  "pageSortPredicate": {"@id": "ldp:pageSortPredicate", "@type":"@id"},
+		  "pageSortOrder": {"@id": "ldp:pageSortOrder", "@type":"@id"},
+		  "pageSortCollation": {"@id": "ldp:pageSortCollation", "@type":"@id"},
+		  "Ascending": "ldp:Ascending",
+		  "Descending": "ldp:Descending",
 
-		"MemberSubject": "ldp:MemberSubject",
-		"PreferContainment": "ldp:PreferContainment",
-		"PreferMembership": "ldp:PreferMembership",
-		"PreferMinimalContainer": "ldp:PreferMinimalContainer",
+		  "Page": "ldp:Page",
+		  "pageSequence": {"@id": "ldp:pageSequence", "@type":"@id"},
 
-		"PageSortCriterion": "ldp:PageSortCriterion",
-		"pageSortCriteria": {"@id": "ldp:pageSortCriteria", "@type":"@id", "@container": "@list"},
-		"pageSortPredicate": {"@id": "ldp:pageSortPredicate", "@type":"@id"},
-		"pageSortOrder": {"@id": "ldp:pageSortOrder", "@type":"@id"},
-		"pageSortCollation": {"@id": "ldp:pageSortCollation", "@type":"@id"},
-		"Ascending": "ldp:Ascending",
-		"Descending": "ldp:Descending",
-
-		"Page": "ldp:Page",
-		"pageSequence": {"@id": "ldp:pageSequence", "@type":"@id"},
-
-		"inbox": { "@id": "ldp:inbox", "@type": "@id" }
-	}
+		  "inbox": { "@id": "ldp:inbox", "@type": "@id" }
+	  }
   },
   "https://coar-notify.net": {
     "@context": {
