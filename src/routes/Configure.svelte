@@ -77,6 +77,36 @@
                 Overrides the inbox discovered for the recipient, sending all replies here instead. Useful for testing against a local inbox.
             </div>
         </div>
+
+        <div class="mb-3">
+            <label for="relayUrl" class="form-label">Relay endpoint</label>
+            <input
+                type="text"
+                class="form-control"
+                id="relayUrl"
+                placeholder="e.g. http://localhost:5052/relay/"
+                aria-describedby="relayUrlHelp"
+                bind:value={$defaultOptions.relayUrl}
+            />
+            <div id="relayUrlHelp" class="form-text">
+                Where to POST for server-side forwarding to registered receivers. Leave blank to send directly from the browser.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="relayToken" class="form-label">Relay token</label>
+            <input
+                type="password"
+                class="form-control"
+                id="relayToken"
+                placeholder=""
+                aria-describedby="relayTokenHelp"
+                bind:value={$defaultOptions.relayToken}
+            />
+            <div id="relayTokenHelp" class="form-text">
+                Bearer token issued by the relay operator. Only used when a relay endpoint is set.
+            </div>
+        </div>
     </div>
 
     <h5>Your Actor Identity</h5>

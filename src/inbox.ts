@@ -118,14 +118,27 @@ function randomUUID(): string {
     );
 }
 
-export async function sendNotification(inboxUrl: string, payload: any) {
-    console.log(`Sending to ${inboxUrl}:`, payload);
+export interface SendOptions {
+    relayUrl?: string;
+    relayToken?: string | null;
+}
+
+export async function sendNotification(inboxUrl: string, payload: any, opts: SendOptions = {}) {
+    // Opt-in relay: with relayUrl set, POST there with X-Forward-To=inboxUrl;
+    // blank => direct send. Store-free, mirroring validate.ts's options.api.
+    const url = opts.relayUrl || inboxUrl;
+    const headers: Record<string,string> = { 'Content-Type': 'application/ld+json' };
+    if (opts.relayUrl) {
+        headers['X-Forward-To'] = inboxUrl;
+        if (opts.relayToken) {
+            headers['Authorization'] = `Bearer ${opts.relayToken}`;
+        }
+    }
+    console.log(`Sending to ${url}${opts.relayUrl ? ` (forward to ${inboxUrl})` : ''}:`, payload);
     try {
-        const response = await fetch(inboxUrl, {
+        const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/ld+json'
-            },
+            headers,
             body: JSON.stringify(payload)
         });
 
@@ -137,8 +150,8 @@ export async function sendNotification(inboxUrl: string, payload: any) {
         return response;
     }
     catch (e) {
-        console.error(`failed to contact ${inboxUrl}`, e);
-        throw new Error(`Failed to send notification to ${inboxUrl}`);        
+        console.error(`failed to contact ${url}`, e);
+        throw new Error(`Failed to send notification to ${inboxUrl}`);
     }
 }
 

@@ -341,7 +341,10 @@
                 }
             }
 
-            await sendNotification(inbox,payload); 
+            await sendNotification(inbox, payload, {
+                relayUrl: $defaultOptions.relayUrl,
+                relayToken: $defaultOptions.relayToken
+            });
             dispatch('changeTab','Successfully Sent Notification!');
             playWhoosh();
         }

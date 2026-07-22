@@ -2,6 +2,7 @@ import { type Agent } from "./inbox";
 
 export const INBOX_URL = import.meta.env.VITE_INBOX_URL ?? '/inbox/';
 export const VALIDATOR_URL = import.meta.env.VITE_VALIDATOR_URL ?? '/validate';
+export const RELAY_URL = import.meta.env.VITE_RELAY_URL ?? '';
 export const THIS_ACTOR : Agent = {
     id: "http://generic.service.org",
     type: "https://www.w3.org/ns/activitystreams#Person",
@@ -17,7 +18,9 @@ export const THIS_ORIGIN : any = {
 export const THIS_OPTIONS : any = {
     "inboxUrl": INBOX_URL,
     "validatorUrl": VALIDATOR_URL,
-    "preferredTargetInbox": null
+    "preferredTargetInbox": null,
+    "relayUrl": RELAY_URL,
+    "relayToken": null
 };
 export const LD_CACHE : Record<string,any> = {
   "https://www.w3.org/ns/activitystreams": {

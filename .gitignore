@@ -27,3 +27,6 @@ dist-ssr
 .nvmrc
 
 .env
+
+# Relay token files are live bearer secrets — never commit them
+/token/

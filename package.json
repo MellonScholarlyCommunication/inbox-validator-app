@@ -9,7 +9,9 @@
     "preview": "vite preview --port 5050",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "inbox": "npx ldn-inbox-server start-server --port 5051",
+    "relay": "node relay/server.js",
     "docker:inbox": "docker compose up --force-recreate inbox",
+    "docker:relay": "docker compose up --force-recreate relay",
     "docker:web": "docker compose up --force-recreate web",
     "docker:all": "docker compose up --force-recreate"
   },

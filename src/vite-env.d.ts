@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
     readonly VITE_INBOX_URL?: string;
     readonly VITE_VALIDATOR_URL?: string;
+    readonly VITE_RELAY_URL?: string;
 }
 
 interface ImportMeta {

@@ -19,6 +19,8 @@ interface FormDefaults {
     inboxUrl: string;
     validatorUrl: string;
     preferredTargetInbox: string | null;
+    relayUrl: string;
+    relayToken: string | null;
 }
 
 export const notificationData = writable<Notification | null>(null);

@@ -1,0 +1,5 @@
+{
+  "name": "inbox-validator-relay",
+  "private": true,
+  "type": "module"
+}

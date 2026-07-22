@@ -15,6 +15,18 @@ services:
       - "5051:5051"
     restart: unless-stopped
 
+  relay:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    env_file:
+      - .env
+    volumes:
+      - ./token:/app/token:ro
+    ports:
+      - "5052:5052"
+    restart: unless-stopped
+
   web:
     build:
       context: .
@@ -22,6 +34,7 @@ services:
       args:
         VITE_INBOX_URL: ${VITE_INBOX_URL:-/inbox/}
         VITE_VALIDATOR_URL: ${VITE_VALIDATOR_URL:-/validate}
+        VITE_RELAY_URL: ${VITE_RELAY_URL:-/relay/}
     environment:
       VALIDATOR_UPSTREAM: ${VALIDATOR_UPSTREAM:-http://host.docker.internal:3000}
     extra_hosts:
@@ -30,4 +43,5 @@ services:
       - "8080:80"
     depends_on:
       - inbox
+      - relay
     restart: unless-stopped
