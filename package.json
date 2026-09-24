@@ -13,7 +13,8 @@
     "docker:inbox": "docker compose up --force-recreate inbox",
     "docker:relay": "docker compose up --force-recreate relay",
     "docker:web": "docker compose up --force-recreate web",
-    "docker:all": "docker compose up --force-recreate"
+    "docker:all": "docker compose up --force-recreate",
+    "token:make": "./bin/make_token.sh"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
