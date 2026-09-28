@@ -10,10 +10,14 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "inbox": "npx ldn-inbox-server start-server --port 5051",
     "relay": "node relay/server.js",
-    "docker:inbox": "docker compose up --force-recreate inbox",
-    "docker:relay": "docker compose up --force-recreate relay",
-    "docker:web": "docker compose up --force-recreate web",
-    "docker:all": "docker compose up --force-recreate",
+    "docker:run:inbox": "docker compose up --force-recreate inbox",
+    "docker:run:relay": "docker compose up --force-recreate relay",
+    "docker:run:web": "docker compose up --force-recreate web",
+    "docker:run:all": "docker compose up --force-recreate",
+    "docker:build:inbox": "docker compose build inbox",
+    "docker:build:relay": "docker compose build relay",
+    "docker:build:web": "docker compose build web",
+    "docker:build:all": "docker compose build",
     "token:make": "./bin/make_token.sh"
   },
   "devDependencies": {
