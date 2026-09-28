@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Inbox Viewer – Documentation</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0" id="app-title">DOCUMENTATION</h2>
+            <small id="app-name">COAR Notify</small>
+          </div>
+
+          <div class="card-body">
+            <h2>What is this?</h2>
+            <p>
+              <b>Inbox Viewer</b> is a web interface to browse, inspect, validate and send notifications using the <a href="https://coar-notify.net">COAR Notify protocol</a>. It reads the notifications in an <a href="https://www.w3.org/TR/ldn/">LDN</a> inbox, checks them with a <a href="https://json-schema.org/">JSON Schema</a> and <a href="https://www.w3.org/TR/shacl/">SHACL</a> validator, and lets you reply to them or create new ones.
+            </p>
+            <p>
+              The interface is deliberately technical and stays close to the raw information that is sent and received using the COAR Notify protocol. It is aimed at technical managers of repositories and service providers who want to debug their COAR Notify service endpoints.
+            </p>
+
+            <h2>Configuration</h2>
+            <p>
+              To get the most out of the Inbox Viewer, open the <a href="/#/configure">Settings</a> screen (the <span aria-label="settings">&#x2699;&#xFE0F;</span> button in the main application). Settings are stored in your browser and apply only to that browser.
+            </p>
+
+            <p>The main configuration settings for first-time users are listed below.</p>
+
+            <ul>
+              <li>
+                <b>Main inbox</b> – the LDN inbox whose notifications are shown in the inbox list
+                (default: <code id="inbox-url"></code>).
+              </li>
+              <li>
+                <b>Validator endpoint</b> – the validator used by the <i>Validate</i> button
+                (default: <code id="validator-url"></code>).
+              </li>
+              <li>
+                <b>Relay endpoint</b> and <b>Relay token</b> – by default, notifications are sent directly
+                from your browser. Some repository systems, however, only accept notifications from a fixed
+                IP address. For those, the Inbox Viewer offers a relay endpoint that forwards outgoing
+                notifications from a fixed address. Using the relay requires a <i>relay token</i>, which can
+                be requested from the service manager at <mark>EMAIL</mark>.
+              </li>
+              <li>
+                <b>Your Actor Identity</b> – fill in the id, type, name and (optional) inbox of the actor
+                that sends the notifications.
+              </li>
+            </ul>
+
+            <h2>Inbox</h2>
+
+            <p>
+              The <a href="/#/inbox">Inbox</a> page provides an overview of all incoming notifications. This page is <i>not</i> live. Refresh the page to see new notifications. The inbox always contains some example notifications. <span id="max-notification-age-note" hidden>Incoming notifications are removed automatically after <b id="max-notification-age"></b> days.</span>
+            </p>
+
+            <p>The following fields are shown for each notification:</p>
+            <ul>
+              <li><b>Type</b> – the activity type of the notification, e.g. <i>Offer</i>, <i>Announce</i> or <i>Accept</i>.</li>
+              <li><b>Name</b> – the file name of the notification in the inbox. Click it to open the notification.</li>
+              <li><b>Actor</b> – the identifier of the actor that sent the notification.</li>
+              <li><b>Size</b> – the size of the notification in bytes.</li>
+              <li><b>Modified</b> – the date and time when the notification was stored in the inbox.</li>
+            </ul>
+
+            <h2>Notification</h2>
+
+            <p>
+              The notification page shows a single notification. The badge next to the title shows whether a reply is expected. Only <i>Offer</i> notifications expect a reply. Click the URL below the title to open the raw notification.
+            </p>
+
+            <p>Three views are available:</p>
+            <ul>
+              <li><b>Details</b> – a summary and the parsed body of the notification.</li>
+              <li><b>Source</b> – the raw JSON-LD.</li>
+              <li><b>Graph</b> – the notification as an RDF graph.</li>
+            </ul>
+
+            <p>The buttons below the notification are grouped by purpose:</p>
+            <ul>
+              <li><b>Check</b> – <i>Validate</i> sends the notification to the validator and shows the report.</li>
+              <li><b>Decide</b> – <i>Accept</i> or <i>Reject</i> the offer.</li>
+              <li><b>Report</b> – <i>Flag</i> the offer.</li>
+              <li><b>Inform</b> – <i>Announce</i> a result related to the offer.</li>
+            </ul>
+
+            <p>
+              A reply button opens a form to compose the reply before it is sent.
+            </p>
+
+            <h2>Validate</h2>
+
+            <p>
+              <i>Validate</i> sends the raw notification to the <a href="https://github.com/MellonScholarlyCommunication/shacl-validator">validator</a> set as <b>Validator endpoint</b> on the <a href="/#/configure">Settings</a> screen. The validator runs two checks:
+            </p>
+            <ul>
+              <li><b>JSON Schema</b> – checks that the JSON conforms to the COAR Notify guidelines. This catches interoperability issues. See the <a href="https://github.com/MellonScholarlyCommunication/shacl-validator/blob/main/shapes/notification.json">JSON Schema</a>.</li>
+              <li><b>SHACL</b> – checks the semantic (RDF) content of the notification. See the <a href="https://github.com/MellonScholarlyCommunication/shacl-validator/blob/main/shapes/coar-notify.ttl">SHACL shapes</a>.</li>
+            </ul>
+            <p>
+              The report is shown below the buttons as <i>Validation Report</i>.
+            </p>
+
+            <p>
+              If the validator cannot be reached or returns an error, the report shows <i>Failed to contact</i> followed by the validator URL. Check the <b>Validator endpoint</b> setting and that the validator is running.
+            </p>
+
+            <h2 id="reply">Reply</h2>
+
+            <p>
+              Each reply button opens a form. The <b>To</b> fields are filled in from the offer: the reply goes to the inbox of the offer's origin, or of its actor when the origin has none. A <b>Default reply inbox</b> on the <a href="/#/configure">Settings</a> screen overrides this. The reply uses <b>Your Actor Identity</b> and <b>Your Origin Identity</b> from the Settings screen, contains the offer as its object and refers to it with <code>inReplyTo</code>.
+            </p>
+
+            <p>
+              <i>Send</i> delivers the reply, directly from the browser or through the relay when a <b>Relay endpoint</b> is set. With the relay, a trace of the delivery is shown. <i>Reset</i> restores the form.
+            </p>
+
+            <h3>Accept</h3>
+
+            <p>
+              Accept the offer. Check <i>Tentative Accept</i> to send a <code>TentativeAccept</code> instead. A tentative accept requires a <b>Summary</b>.
+            </p>
+
+            <h3>Reject</h3>
+
+            <p>
+              Reject the offer. Check <i>Tentative Reject</i> to send a <code>TentativeReject</code> instead. A tentative reject requires a <b>Summary</b>.
+            </p>
+
+            <h3>Flag</h3>
+
+            <p>
+              Flag the offer, e.g. when it cannot be processed. A <b>Summary</b> explaining why is required.
+            </p>
+
+            <h3 id="reply-announce">Announce</h3>
+
+            <p>
+              Announce the result of the offer. Pick the <b>Announce Type</b>: <i>GenericAction</i>, <i>EndorsementAction</i>, <i>RelationshipAction</i> or <i>ReviewAction</i>. It is preselected when the offer is a review or endorsement request.
+            </p>
+            <ul>
+              <li><b>What</b> – the result, e.g. the review or endorsement: its <b>Object</b> URL, <b>Cite As</b> and <b>Type</b>. For a <i>RelationshipAction</i>: the <b>Subject</b>, <b>Relationship</b> and <b>Object</b> of the relationship.</li>
+              <li><b>Context</b> – the work the result is about. Filled in from the offer.</li>
+            </ul>
+
+            <h2>New Notification</h2>
+
+            <p>
+              The <a href="/#/new">New Notification</a> page (<i>New Notification</i> button in the upper-right menu) creates a notification from scratch. The buttons are grouped by purpose: <b>Request</b> (<i>Offer</i>), <b>Inform</b> (<i>Announce</i>), <b>Retract</b> (<i>Undo</i>) and <b>Custom</b> (<i>Generic</i>).
+            </p>
+
+            <p>
+              Each form starts with the <b>To</b> fields: the <b>Inbox</b> to send to and, optionally, the id, name and type of the target. Sending works as for a <a href="#reply">reply</a>.
+            </p>
+
+            <h3>Offer</h3>
+
+            <p>
+              Request a service, e.g. a review or an endorsement. Pick the <b>Offer Type</b>: <i>EndorsementAction</i> or <i>ReviewAction</i>. Then describe the work:
+            </p>
+            <ul>
+              <li><b>Id (landing page)</b> – the landing page URL of the work. Required.</li>
+              <li><b>Cite As</b> – a citable URL of the work, e.g. a DOI.</li>
+              <li><b>Type</b> – the ActivityStreams and schema.org type of the landing page.</li>
+              <li><b>Item (content resource)</b>, <b>Media Type</b> and <b>Type</b> – the content itself, e.g. the PDF. Required.</li>
+            </ul>
+
+            <h3>Announce</h3>
+
+            <p>
+              Announce a result without a preceding offer. The form is the same as the <a href="#reply-announce">Announce reply</a>, but <b>Context</b> starts empty and is optional.
+            </p>
+
+            <h3>Undo</h3>
+
+            <p>
+              Retract a previous offer. Pick the offer from the list; the <b>To</b> fields are filled in from its target. A <b>Summary</b> explaining why is required. The offer is sent as the object of the <code>Undo</code>.
+            </p>
+            <p>
+              <small>In this demo the list shows the offers in the main inbox. A production system would list the offers it sent itself.</small>
+            </p>
+
+            <h3>Generic</h3>
+
+            <p>
+              Send any JSON document to an inbox. Optionally pick an existing notification as a template, then edit the source. Only JSON is accepted. For debugging only: nothing is added or checked before sending.
+            </p>
+
+            <h2>Advanced Configuration</h2>
+
+            <h3>Configure your own LDN Inbox</h3>
+
+            <p>
+              The Inbox Viewer can read any remote inbox that follows the <a href="https://www.w3.org/TR/ldn/">LDN protocol</a>. Set its URL as <b>Main inbox</b> on the <a href="/#/configure">Settings</a> screen, with a trailing slash.
+            </p>
+
+            <p>The inbox must provide:</p>
+            <ul>
+              <li><b>GET</b> on the inbox URL – an LDP container listing the notifications with <code>ldp:contains</code>. Served as <code>application/ld+json</code> or <code>text/turtle</code>.</li>
+              <li><b>GET</b> on each notification URL – the notification as JSON-LD. Notification URLs must be under the inbox URL.</li>
+              <li><b>POST</b> on the inbox URL – accepts a new notification as <code>application/ld+json</code>. Only needed to send to this inbox.</li>
+              <li><b>CORS</b> – the browser reads the inbox directly, so the server must allow the origin of the Inbox Viewer, including the <code>Accept</code> and <code>Content-Type</code> headers.</li>
+            </ul>
+
+            <p>
+              Optionally, add <code>posix:mtime</code> (seconds since 1970) and <code>posix:size</code> (bytes) per notification to fill the <b>Modified</b> and <b>Size</b> columns. A minimal container:
+            </p>
+
+<pre class="bg-light border rounded p-3"><code>{
+  "@context": {
+    "ldp": "http://www.w3.org/ns/ldp#",
+    "posix": "http://www.w3.org/ns/posix/stat#"
+  },
+  "@id": "https://example.org/inbox/",
+  "@type": "ldp:Container",
+  "ldp:contains": [
+    {
+      "@id": "https://example.org/inbox/1234.jsonld",
+      "posix:mtime": 1759046400,
+      "posix:size": 1024
+    }
+  ]
+}</code></pre>
+          </div>
+        </div>
+        <footer class="text-center text-muted small mt-3">
+          Inbox Viewer is developed by <a href="https://lib.ugent.be" class="link-secondary">Ghent University Library</a>
+          for the <a href="https://coar-notify.net" class="link-secondary">COAR Notify</a> project.
+          <a href="https://github.com/MellonScholarlyCommunication/inbox-validator-app" class="link-secondary">Source code</a> on GitHub.
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { INBOX_URL, VALIDATOR_URL, MAX_NOTIFICATION_AGE } from '../src/endpoints.ts';
+
+    document.getElementById('inbox-url').textContent = INBOX_URL;
+    document.getElementById('validator-url').textContent = VALIDATOR_URL;
+    document.getElementById('max-notification-age').textContent = MAX_NOTIFICATION_AGE;
+    document.getElementById('max-notification-age-note').hidden = !MAX_NOTIFICATION_AGE;
+  </script>
+</body>
+</html>

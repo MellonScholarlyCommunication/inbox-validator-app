@@ -35,6 +35,7 @@ services:
         VITE_INBOX_URL: ${VITE_INBOX_URL:-/inbox/}
         VITE_VALIDATOR_URL: ${VITE_VALIDATOR_URL:-/validate}
         VITE_RELAY_URL: ${VITE_RELAY_URL:-/relay/}
+        VITE_MAX_NOTIFICATION_AGE: ${VITE_MAX_NOTIFICATION_AGE:-}
     environment:
       VALIDATOR_UPSTREAM: ${VALIDATOR_UPSTREAM:-http://host.docker.internal:3000}
     extra_hosts:

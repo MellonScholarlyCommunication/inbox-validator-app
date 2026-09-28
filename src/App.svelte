@@ -29,6 +29,11 @@
 					<Router {routes} />
 				</div>
 			</div>
+			<footer class="text-center text-muted small mt-3">
+				Inbox Viewer is developed by <a href="https://lib.ugent.be" class="link-secondary">Ghent University Library</a>
+				for the <a href="https://coar-notify.net" class="link-secondary">COAR Notify</a> project.
+				<a href="https://github.com/MellonScholarlyCommunication/inbox-validator-app" class="link-secondary">Source code</a> on GitHub.
+			</footer>
 		</div>
 	</div>
 </div>

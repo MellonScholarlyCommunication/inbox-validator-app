@@ -1,8 +1,7 @@
 import { type Agent } from "./inbox";
+import { INBOX_URL, VALIDATOR_URL, RELAY_URL } from "./endpoints";
 
-export const INBOX_URL = import.meta.env.VITE_INBOX_URL ?? '/inbox/';
-export const VALIDATOR_URL = import.meta.env.VITE_VALIDATOR_URL ?? '/validate';
-export const RELAY_URL = import.meta.env.VITE_RELAY_URL ?? '';
+export { INBOX_URL, VALIDATOR_URL, RELAY_URL };
 export const THIS_ACTOR : Agent = {
     id: "http://generic.service.org",
     type: "https://www.w3.org/ns/activitystreams#Person",

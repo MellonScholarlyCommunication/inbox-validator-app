@@ -5,7 +5,7 @@
 	import { listInbox, getNotification } from "../inbox";
   import { AS } from "../globals";
 
-  let inbox : string;
+  let inbox = "";
 
   if ($defaultOptions) {
 	  inbox = $defaultOptions.inboxUrl;
@@ -32,9 +32,38 @@
     return as2 ? as2.replace(AS, "") : undefined;
   }
 
+  interface InboxError {
+    title: string;
+    hint: string;
+  }
+
+  // fetch() rejects with a TypeError on network and CORS failures; listInbox
+  // throws plain Errors for HTTP statuses and unparseable responses.
+  function describeError(error: unknown) : InboxError {
+    const message = error instanceof Error ? error.message : String(error);
+    if (error instanceof TypeError) {
+      return {
+        title: 'No LDN inbox service found',
+        hint: 'The server could not be reached. Check that the inbox service is running, that the address is correct and that it allows cross-origin (CORS) requests.'
+      };
+    }
+    if (message.startsWith('HTTP error')) {
+      return {
+        title: 'Inbox not available',
+        hint: `The server answered with ${message.replace('HTTP error: ', 'HTTP ')}. Check that the address points to an LDN inbox.`
+      };
+    }
+    return {
+      title: 'Not an LDN inbox',
+      hint: 'The server answered, but not with an LDN inbox (an LDP container in JSON-LD or Turtle).'
+    };
+  }
+
+  let inboxPromise = listInbox(inbox);
+
 </script>
 
-{#await listInbox(inbox)}
+{#await inboxPromise}
   <p>Loading {inbox}...</p>
 {:then notifications} 
 <h3>{inbox}</h3>
@@ -83,8 +112,20 @@
   {/if}
 </table>
 {:catch error}
-  <p class="error">Failed to load {inbox}</p>
-  <p>{error}</p>
+  {@const info = describeError(error)}
+  <div class="alert alert-danger mt-3" role="alert">
+    <h4 class="alert-heading h5">{info.title}</h4>
+    <p class="mb-2">Could not open the inbox at <code>{inbox}</code>.</p>
+    <p class="mb-3">{info.hint}</p>
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-sm btn-outline-danger" on:click={() => inboxPromise = listInbox(inbox)}>Try again</button>
+      <a href="#/configure" class="btn btn-sm btn-outline-secondary">Change the Main inbox</a>
+    </div>
+    <details class="mt-3 small">
+      <summary>Technical details</summary>
+      <code>{error}</code>
+    </details>
+  </div>
 {/await}
 
 <style>
@@ -93,13 +134,5 @@
 }
 .table {
     margin-top: 30px;
-}
-.error {
-    color: #dc3545;          /* Bootstrap's danger red */
-    background-color: #f8d7da;
-    border: 1px solid #f5c2c7;
-    border-radius: 0.375rem;
-    padding: 0.75rem 1rem;
-    margin-top: 1rem;
 }
 </style>
