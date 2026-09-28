@@ -36,25 +36,22 @@
       class: string;
   }
 
-  let tabs : Tab[] = [];
+  const validateTab : Tab = { label: 'Validate', component: Validate , class: 'btn btn-primary' };
+  let replyTabs : Tab[] = [];
+  let activityType : string | undefined;
 
   let activeTab : Tab | null = null;
 
   onMount(async () => {
       $notificationData = await getNotification(notificationUrl) as Notification;
+      activityType = $notificationData?.object?.type?.find(t => t.startsWith(AS))?.replace(AS, "");
       if ($notificationData?.object?.type?.includes(`${AS}Offer`)) {
-        tabs = [
-          { label: 'Validate', component: Validate , class: 'btn btn-primary' },
+        replyTabs = [
           { label: 'Flag', component: Flag , class: 'btn btn-danger' },
           { label: 'Accept', component: Accept , class: 'btn btn-info' },
           { label: 'Reject', component: Reject , class: 'btn btn-warning' },
           { label: 'Announce', component: Announce , class: 'btn btn-success' }
         ];
-      }
-      else {
-        tabs = [
-          { label: 'Validate', component: Validate , class: 'btn btn-primary' },
-        ]; 
       }
   });
 </script>
@@ -66,7 +63,14 @@
 {#if $notificationData} 
     <div class="card-body">
       {#if $notificationData.object?.id}
-        <h3>Notification {$notificationData.object?.id}</h3>
+        <h3>
+          Notification {$notificationData.object?.id}
+          {#if replyTabs.length}
+            <span class="badge rounded-pill text-bg-warning fs-6 align-middle">Awaiting reply</span>
+          {:else}
+            <span class="badge rounded-pill text-bg-light border fs-6 align-middle">No reply needed</span>
+          {/if}
+        </h3>
       {:else}
         <h3>Invalid Notification</h3>
       {/if}
@@ -95,15 +99,33 @@
 
       <div class="tab-container">
         <nav>
-            {#each tabs as tab}
-            <button 
-              class={tab.class}
-              class:active={activeTab === tab} 
-              on:click={() => activeTab = tab}
-            >
-            {tab.label}
-            </button> 
-            {/each}
+            <div class="action-group">
+              <span class="group-label">Check</span>
+              <button
+                class={validateTab.class}
+                class:active={activeTab === validateTab}
+                on:click={() => activeTab = validateTab}
+              >
+              {validateTab.label}
+              </button>
+            </div>
+            <div class="vr"></div>
+            <div class="action-group">
+              <span class="group-label">Reply</span>
+              {#each replyTabs as tab}
+              <button
+                class={tab.class}
+                class:active={activeTab === tab}
+                on:click={() => activeTab = tab}
+              >
+              {tab.label}
+              </button>
+              {:else}
+              <span class="text-secondary fst-italic">
+                {activityType ?? 'This notification'} is informational, no reply expected
+              </span>
+              {/each}
+            </div>
         </nav>
       </div>
     </div>
@@ -155,6 +177,19 @@
     display: flex;       /* Lined up in a row */
     gap: 12px;           /* The magic spacing property */
     margin-bottom: 5px;  /* Space between buttons and the content div */
+  }
+
+  .action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
   }
 
   .view-controls {
