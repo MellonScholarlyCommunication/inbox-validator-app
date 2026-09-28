@@ -15,6 +15,7 @@
     }
 
     let validationReport: Report;
+    let waitMsg : string = "";
 
     notificationData.subscribe( (data) => {
         handleValidate(data) 
@@ -26,6 +27,7 @@
         }
 
         try {
+            waitMsg = "Validating…";
             const result = await validateNotification(notification.data, {
                 api: validatorApi
             });
@@ -48,10 +50,18 @@
                 };
             }
         }
+        finally {
+            waitMsg = "";
+        }
     }
 </script>
 
-{#if validationReport}
+{#if waitMsg}
+    <div class="d-flex align-items-center gap-2 text-secondary my-3" role="status">
+        <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+        <span>{waitMsg}</span>
+    </div>
+{:else if validationReport}
     <h3>Validation Report</h3>
     {#if validationReport.isError }
         <p class="error">{@html validationReport.data}</p>
