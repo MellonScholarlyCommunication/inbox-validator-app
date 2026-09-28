@@ -291,11 +291,15 @@ export async function listInbox(url: string) : Promise<Member[]> {
         throw new Error(`can not parse: ${contentType}`);
     }
 
-    // Clean the members and remove the base url
-    const members = inbox.map(member => ({
-        ...member,
-        name: member.name.replace(url,"")
-    }));
+    // Strip by path: the server's absolute IRIs (LDN_SERVER_BASEURL) needn't share our origin behind a proxy
+    const base = new URL(url, window.location.href).pathname;
+    const members = inbox.map(member => {
+        const path = new URL(member.name, response.url).pathname;
+        return {
+            ...member,
+            name: path.startsWith(base) ? path.slice(base.length) : path.replace(/.*\//,"")
+        };
+    });
 
     // Sort most recent first; members without a date sink to the bottom
     return members.sort((a,b) => {
