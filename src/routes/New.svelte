@@ -18,11 +18,24 @@
         class: string;
     }
 
-    const tabs : Tab[] = [
-      { label: 'Offer', component: Offer, class: 'btn btn-primary' },
-      { label: 'Undo', component: Undo, class: 'btn btn-warning'},
-      { label: 'Announce', component: Announce , class: 'btn btn-success' },
-      { label: 'Generic', component: Generic, class: 'btn btn-danger' },
+    interface TabGroup {
+        label: string;
+        tabs: Tab[];
+    }
+
+    const tabGroups : TabGroup[] = [
+      { label: 'Request', tabs: [
+        { label: 'Offer', component: Offer, class: 'btn btn-primary' }
+      ]},
+      { label: 'Inform', tabs: [
+        { label: 'Announce', component: Announce , class: 'btn btn-success' }
+      ]},
+      { label: 'Retract', tabs: [
+        { label: 'Undo', component: Undo, class: 'btn btn-warning'}
+      ]},
+      { label: 'Custom', tabs: [
+        { label: 'Generic', component: Generic, class: 'btn btn-danger' }
+      ]}
     ];
 
     let activeTab : Tab | null = null;
@@ -46,14 +59,22 @@
 {#if !activeTab}
   <div class="tab-container">
       <nav>
-          {#each tabs as tab}
-          <button 
-              class={tab.class}
-              class:active={activeTab === tab} 
-              on:click={() => activeTab = tab}
-          >
-          {tab.label}
-          </button> 
+          {#each tabGroups as group, i}
+          {#if i > 0}
+          <div class="vr"></div>
+          {/if}
+          <div class="action-group">
+            <span class="group-label">{group.label}</span>
+            {#each group.tabs as tab}
+            <button 
+                class={tab.class}
+                class:active={activeTab === tab} 
+                on:click={() => activeTab = tab}
+            >
+            {tab.label}
+            </button> 
+            {/each}
+          </div>
           {/each}
       </nav>
   </div>
@@ -104,6 +125,19 @@
     display: flex;       /* Lined up in a row */
     gap: 12px;           /* The magic spacing property */
     margin-bottom: 5px;  /* Space between buttons and the content div */
+  }
+
+  .action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
   }
 
 </style>

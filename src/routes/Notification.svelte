@@ -6,7 +6,6 @@
   import { defaultOptions} from "../store";
   import { AS } from "../globals";
   import { getNotification , type Notification } from "../inbox";
-  import Toggle from "./Helper/Toggle.svelte";
   import ParsedNotification from './NotificationParts/ParsedNotification.svelte';
   import RawNotification from './NotificationParts/RawNotification.svelte';
   import GraphNotification from './NotificationParts/GraphNotification.svelte';
@@ -20,8 +19,13 @@
 
   let showToast = false;
   let toastMessage = "";
-  let viewSource = false;
-  let showGraph = false;
+  type View = 'details' | 'source' | 'graph';
+  const views : { id: View, label: string }[] = [
+    { id: 'details', label: 'Details' },
+    { id: 'source', label: 'Source' },
+    { id: 'graph', label: 'Graph' }
+  ];
+  let view : View = 'details';
   let inbox : string;
   let notificationUrl : string;
   
@@ -36,8 +40,13 @@
       class: string;
   }
 
+  interface TabGroup {
+      label: string;
+      tabs: Tab[];
+  }
+
   const validateTab : Tab = { label: 'Validate', component: Validate , class: 'btn btn-primary' };
-  let replyTabs : Tab[] = [];
+  let replyGroups : TabGroup[] = [];
   let activityType : string | undefined;
 
   let activeTab : Tab | null = null;
@@ -46,11 +55,17 @@
       $notificationData = await getNotification(notificationUrl) as Notification;
       activityType = $notificationData?.object?.type?.find(t => t.startsWith(AS))?.replace(AS, "");
       if ($notificationData?.object?.type?.includes(`${AS}Offer`)) {
-        replyTabs = [
-          { label: 'Flag', component: Flag , class: 'btn btn-danger' },
-          { label: 'Accept', component: Accept , class: 'btn btn-info' },
-          { label: 'Reject', component: Reject , class: 'btn btn-warning' },
-          { label: 'Announce', component: Announce , class: 'btn btn-success' }
+        replyGroups = [
+          { label: 'Decide', tabs: [
+            { label: 'Accept', component: Accept , class: 'btn btn-info' },
+            { label: 'Reject', component: Reject , class: 'btn btn-warning' }
+          ]},
+          { label: 'Report', tabs: [
+            { label: 'Flag', component: Flag , class: 'btn btn-danger' }
+          ]},
+          { label: 'Inform', tabs: [
+            { label: 'Announce', component: Announce , class: 'btn btn-success' }
+          ]}
         ];
       }
   });
@@ -65,7 +80,7 @@
       {#if $notificationData.object?.id}
         <h3>
           Notification {$notificationData.object?.id}
-          {#if replyTabs.length}
+          {#if replyGroups.length}
             <span class="badge rounded-pill text-bg-warning fs-6 align-middle">Awaiting reply</span>
           {:else}
             <span class="badge rounded-pill text-bg-light border fs-6 align-middle">No reply needed</span>
@@ -74,24 +89,25 @@
       {:else}
         <h3>Invalid Notification</h3>
       {/if}
-      <h6>{inbox}{params.name}</h6>
       <div class="view-controls">
-        <Toggle bind:enabled={viewSource}/>
-        <button class="btn btn-outline-dark graph-btn" on:click={() => showGraph = !showGraph}>
-          <svg class="rdf-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <line x1="12" y1="5" x2="5" y2="18"/>
-            <line x1="12" y1="5" x2="19" y2="18"/>
-            <line x1="5" y1="18" x2="19" y2="18"/>
-            <circle cx="12" cy="5" r="3"/>
-            <circle cx="5" cy="18" r="3"/>
-            <circle cx="19" cy="18" r="3"/>
-          </svg>
-          {showGraph ? 'Hide graph' : 'View graph'}
-        </button>
+        <h6 class="mb-0">
+          <a href={notificationUrl} target="_blank" rel="noopener noreferrer" class="link-secondary">{notificationUrl}</a>
+        </h6>
+        <div class="btn-group btn-group-sm" role="group" aria-label="View as">
+          {#each views as v}
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              class:active={view === v.id}
+              aria-pressed={view === v.id}
+              on:click={() => view = v.id}
+            >{v.label}</button>
+          {/each}
+        </div>
       </div>
-      {#if showGraph}
+      {#if view === 'graph'}
         <GraphNotification data={$notificationData.data}/>
-      {:else if viewSource}
+      {:else if view === 'source'}
         <RawNotification data={$notificationData.data}/>
       {:else}
         <ParsedNotification object={$notificationData.object}/>
@@ -109,10 +125,11 @@
               {validateTab.label}
               </button>
             </div>
+            {#each replyGroups as group}
             <div class="vr"></div>
             <div class="action-group">
-              <span class="group-label">Reply</span>
-              {#each replyTabs as tab}
+              <span class="group-label">{group.label}</span>
+              {#each group.tabs as tab}
               <button
                 class={tab.class}
                 class:active={activeTab === tab}
@@ -120,12 +137,17 @@
               >
               {tab.label}
               </button>
-              {:else}
+              {/each}
+            </div>
+            {:else}
+            <div class="vr"></div>
+            <div class="action-group">
+              <span class="group-label">Reply</span>
               <span class="text-secondary fst-italic">
                 {activityType ?? 'This notification'} is informational, no reply expected
               </span>
-              {/each}
             </div>
+            {/each}
         </nav>
       </div>
     </div>
@@ -195,28 +217,10 @@
   .view-controls {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 8px;
-  }
-
-  .rdf-icon {
-    width: 1.1em;
-    height: 1.1em;
-    margin-right: 6px;
-    vertical-align: -0.15em;
-    fill: currentColor;
-    stroke: currentColor;
-    stroke-width: 1.5;
-  }
-
-  /* Keep the graph button from flipping colours on hover/focus/active */
-  .graph-btn:hover,
-  .graph-btn:focus,
-  .graph-btn:active {
-    color: var(--bs-btn-color);
-    background-color: transparent;
-    border-color: var(--bs-btn-border-color);
-    box-shadow: none;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
 </style>
