@@ -332,7 +332,7 @@
                 payload['type'] = 'Tentative' + notificationType;
             }
 
-            if (isTentative || notificationType === 'Flag') {
+            if (isTentative || notificationType === 'Flag' || notificationType === 'Undo') {
                 payload['summary'] = summary;
             }
 
