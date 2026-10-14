@@ -90,15 +90,15 @@
 {#await inboxPromise}
   <p>Loading {inbox}...</p>
 {:then notifications} 
-<h3>{inbox}</h3>
+<h3 class="text-break">{inbox}</h3>
 <table class="table table-hover table-sm mb-0 inbox-table">
   <thead class="text-muted small text-uppercase">
     <tr>
       <th class="col-type">Type</th>
       <th>Name</th>
-      <th>Actor</th>
-      <th class="col-size text-end">Size</th>
-      <th class="col-date">Modified</th>
+      <th class="d-none d-md-table-cell">Actor</th>
+      <th class="col-size text-end d-none d-md-table-cell">Size</th>
+      <th class="col-date d-none d-sm-table-cell">Modified</th>
     </tr>
   </thead>
 
@@ -116,16 +116,19 @@
             <span class="badge rounded-pill type-badge {badgeClass()}">--</span>
           {/await}
         </td>
-        <td class="text-truncate" title={member.name}><a href="#/notification/{member.name}">{member.name}</a></td>
+        <td class="text-truncate" title={member.name}>
+          <a href="#/notification/{member.name}">{member.name}</a>
+          <div class="d-sm-none small text-muted">{formatDate(member.date)}</div>
+        </td>
         {#await meta}
-          <td class="text-muted text-truncate"><span class="text-secondary">…</span></td>
+          <td class="text-muted text-truncate d-none d-md-table-cell"><span class="text-secondary">…</span></td>
         {:then meta}
-          <td class="text-muted text-truncate" title={meta.actor}>{meta.actor ?? "--"}</td>
+          <td class="text-muted text-truncate d-none d-md-table-cell" title={meta.actor}>{meta.actor ?? "--"}</td>
         {:catch}
-          <td class="text-muted text-truncate">--</td>
+          <td class="text-muted text-truncate d-none d-md-table-cell">--</td>
         {/await}
-        <td class="text-end text-muted">{ member.size ?? "--"}</td>
-        <td class="text-muted text-nowrap" title={member.date}>{formatDate(member.date)}</td>
+        <td class="text-end text-muted d-none d-md-table-cell">{ member.size ?? "--"}</td>
+        <td class="text-muted text-nowrap d-none d-sm-table-cell" title={member.date}>{formatDate(member.date)}</td>
       </tr>
     {/each}
   </tbody>

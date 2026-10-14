@@ -76,10 +76,10 @@
 </nav>
 
 {#if $notificationData} 
-    <div class="card-body">
+    <div class="card-body notification-view">
       {#if $notificationData.object?.id}
         <h3>
-          Notification {$notificationData.object?.id}
+          Notification <span class="notification-id">{$notificationData.object?.id}</span>
           {#if replyGroups.length}
             <span class="badge rounded-pill text-bg-warning fs-6 align-middle">Awaiting reply</span>
           {:else}
@@ -126,7 +126,7 @@
               </button>
             </div>
             {#each replyGroups as group}
-            <div class="vr"></div>
+            <div class="vr d-none d-sm-block"></div>
             <div class="action-group">
               <span class="group-label">{group.label}</span>
               {#each group.tabs as tab}
@@ -140,7 +140,7 @@
               {/each}
             </div>
             {:else}
-            <div class="vr"></div>
+            <div class="vr d-none d-sm-block"></div>
             <div class="action-group">
               <span class="group-label">Reply</span>
               <span class="text-secondary fst-italic">
@@ -197,12 +197,14 @@
 
   nav {
     display: flex;       /* Lined up in a row */
+    flex-wrap: wrap;
     gap: 12px;           /* The magic spacing property */
     margin-bottom: 5px;  /* Space between buttons and the content div */
   }
 
   .action-group {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
   }
@@ -212,6 +214,19 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--bs-secondary-color);
+  }
+
+  /* Long ids and URLs have no natural break points; let them wrap instead of widening the page */
+  .notification-view {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 575.98px) {
+    .notification-id {
+      display: block;
+      font-size: 1rem;
+      margin: 4px 0;
+    }
   }
 
   .view-controls {

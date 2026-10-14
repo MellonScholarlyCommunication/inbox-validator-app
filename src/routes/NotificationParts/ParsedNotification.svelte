@@ -183,6 +183,21 @@
     vertical-align: top;
   }
 
+  @media (max-width: 575.98px) {
+    .parsed-head dt,
+    .parsed-head dd,
+    .parsed-body dt,
+    .parsed-body dd {
+      display: block;
+      width: auto;
+    }
+
+    .parsed-head dd {
+      padding-left: 12px;
+      margin-bottom: 8px;
+    }
+  }
+
   .parsed-more {
    border-left: 6px solid #ccc;
    padding-left: 10px;
