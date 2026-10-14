@@ -304,10 +304,10 @@ export async function listInbox(url: string) : Promise<Member[]> {
 
     // Sort most recent first; members without a date sink to the bottom
     return members.sort((a,b) => {
-        if (a.date && b.date) return b.date.localeCompare(a.date);
+        if (a.date && b.date) return b.date.localeCompare(a.date) || a.name.localeCompare(b.name);
         if (a.date) return -1;
         if (b.date) return 1;
-        return 0;
+        return a.name.localeCompare(b.name);
     });
 }
 

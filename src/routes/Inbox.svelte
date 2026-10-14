@@ -32,6 +32,30 @@
     return as2 ? as2.replace(AS, "") : undefined;
   }
 
+  // Same colours as the reply buttons (Notification.svelte, New.svelte)
+  const TYPE_COLORS : Record<string, string> = {
+    Offer: 'primary',
+    Accept: 'info',
+    TentativeAccept: 'info',
+    Reject: 'warning',
+    TentativeReject: 'warning',
+    Flag: 'danger',
+    Announce: 'success',
+    Undo: 'warning'
+  };
+
+  function badgeClass(type?: string) : string {
+    const color = type && TYPE_COLORS[type];
+    return color ? `bg-white border border-${color} text-${color}-emphasis` : 'bg-white border text-secondary';
+  }
+
+  function formatDate(iso?: string) : string {
+    if (!iso) return "--";
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
   interface InboxError {
     title: string;
     hint: string;
@@ -67,14 +91,14 @@
   <p>Loading {inbox}...</p>
 {:then notifications} 
 <h3>{inbox}</h3>
-<table class="table table-hover table-sm mb-0">
+<table class="table table-hover table-sm mb-0 inbox-table">
   <thead class="text-muted small text-uppercase">
     <tr>
-      <th class="type-width">Type</th>
+      <th class="col-type">Type</th>
       <th>Name</th>
       <th>Actor</th>
-      <th class="text-end">Size</th>
-      <th>Modified</th>
+      <th class="col-size text-end">Size</th>
+      <th class="col-date">Modified</th>
     </tr>
   </thead>
 
@@ -84,28 +108,24 @@
       {@const meta = loadMeta(member.name)}
       <tr>
         <td>
-          <span class="member-icon icon-txt">
-            {#await meta}
-              <span class="text-secondary">…</span>
-            {:then meta}
-              {meta.type ?? "--"}
-            {:catch}
-              --
-            {/await}
-          </span>
-        </td>
-        <td><a href="#/notification/{member.name}">{member.name}</a></td>
-        <td class="text-muted">
           {#await meta}
-            <span class="text-secondary">…</span>
+            <span class="badge rounded-pill type-badge {badgeClass()}">…</span>
           {:then meta}
-            {meta.actor ?? "--"}
+            <span class="badge rounded-pill type-badge {badgeClass(meta.type)}" title={meta.type}>{meta.type ?? "--"}</span>
           {:catch}
-            --
+            <span class="badge rounded-pill type-badge {badgeClass()}">--</span>
           {/await}
         </td>
+        <td class="text-truncate" title={member.name}><a href="#/notification/{member.name}">{member.name}</a></td>
+        {#await meta}
+          <td class="text-muted text-truncate"><span class="text-secondary">…</span></td>
+        {:then meta}
+          <td class="text-muted text-truncate" title={meta.actor}>{meta.actor ?? "--"}</td>
+        {:catch}
+          <td class="text-muted text-truncate">--</td>
+        {/await}
         <td class="text-end text-muted">{ member.size ?? "--"}</td>
-        <td class="text-muted">{ member.date ?? "--"}</td>
+        <td class="text-muted text-nowrap" title={member.date}>{formatDate(member.date)}</td>
       </tr>
     {/each}
   </tbody>
@@ -129,10 +149,25 @@
 {/await}
 
 <style>
-.type-width {
-    width: 80px;
-}
 .table {
     margin-top: 30px;
+}
+.inbox-table {
+    table-layout: fixed;
+}
+.col-type {
+    width: 130px;
+}
+.col-size {
+    width: 70px;
+}
+.col-date {
+    width: 150px;
+}
+.type-badge {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
 }
 </style>
