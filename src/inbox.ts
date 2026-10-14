@@ -15,6 +15,7 @@ export interface ItemObject {
     id?: string;
     type?: string[];
     mediaType?: string;
+    warning?: string;
     kind: 'item';
 }
 
@@ -332,9 +333,17 @@ async function parseNotification(data: string, type: string) : Promise<Notificat
     return notification;
 }
 
-async function parseNotificationObject(store: N3.Store, id: string) 
+async function parseNotificationObject(store: N3.Store, id: string, ancestors = new Set<string>()) 
     : Promise<GenericObject | PageObject | ItemObject | RelationshipObject> {
     const notification : any = { id };
+
+    // A node that (indirectly) refers to itself, e.g. an ietf:item with the same id as its object, would recurse forever
+    if (ancestors.has(id)) {
+        notification.kind = 'generic';
+        return notification as GenericObject;
+    }
+
+    const path = new Set(ancestors).add(id);
 
     const engine = new window.Comunica.QueryEngine();
     const bindingsStream = await engine.queryBindings(
@@ -527,13 +536,23 @@ async function parseNotificationObject(store: N3.Store, id: string)
                 notification.citeAs = citeAs;
             }
 
-            if (mediaType) {
-                notification.mediaType = mediaType;
-                objectType = 'ItemObject';
+            // Plain-JSON producers may reuse the object id for its ietf:item; in RDF both collapse into
+            // one node, so split the item back out of it instead of treating the page as an item
+            if (item === id) {
+                notification.item = { 
+                    id, type: [...typeSet], mediaType, kind: 'item',
+                    warning: 'The ietf:item has the same id as its object. As linked data these are one and the same resource, so the item cannot be told apart from the page that describes it. Use a distinct id for the item (e.g. the URL of the file itself).'
+                } as ItemObject;
             }
+            else {
+                if (mediaType) {
+                    notification.mediaType = mediaType;
+                    objectType = 'ItemObject';
+                }
 
-            if (item) {
-                notification.item = await parseNotificationObject(store,item);
+                if (item) {
+                    notification.item = await parseNotificationObject(store,item,path);
+                }
             }
 
             if (relSubject) {
@@ -575,7 +594,7 @@ async function parseNotificationObject(store: N3.Store, id: string)
         }
 
         if (object) {
-            notification.object = await parseNotificationObject(store,object);
+            notification.object = await parseNotificationObject(store,object,path);
         }
 
         if (target) {
@@ -592,7 +611,7 @@ async function parseNotificationObject(store: N3.Store, id: string)
         }
 
         if (context) {
-            notification.context = await parseNotificationObject(store,context);
+            notification.context = await parseNotificationObject(store,context,path);
         }
     }
 
