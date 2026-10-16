@@ -65,3 +65,18 @@ Run all the Docker images
 ```
 npm run docker:run:all
 ```
+
+## Cleanup
+
+Remove notifications older than N days from `LDN_SERVER_INBOX_PATH`, `LDN_SERVER_ERROR_PATH` and `LDN_SERVER_OUTBOX_PATH`. The sample notifications in `inbox/` are kept. N defaults to `VITE_MAX_NOTIFICATION_AGE` or 30.
+
+```
+npm run inbox:clean -- 30       # remove files older than 30 days
+npm run inbox:clean -- -n 30    # dry run, only list the files
+```
+
+Daily from cron:
+
+```
+0 3 * * * /path/to/inbox-validator-app/bin/clean_inbox.sh 30
+```

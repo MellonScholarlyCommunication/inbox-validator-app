@@ -18,7 +18,8 @@
     "docker:build:relay": "docker compose build relay",
     "docker:build:web": "docker compose build web",
     "docker:build:all": "docker compose build",
-    "token:make": "./bin/make_token.sh"
+    "token:make": "./bin/make_token.sh",
+    "inbox:clean": "./bin/clean_inbox.sh"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
